@@ -1,0 +1,39 @@
+# Xcode
+DerivedData/
+build/
+xcuserdata/
+**/xcuserdata/
+**/*.xcuserdatad/
+**/*.xcuserstate
+*.xcuserstate
+
+# Playgrounds
+*.playground/
+timeline.xctimeline
+playground.xcworkspace
+
+# SwiftPM
+.build/
+.swiftpm/
+
+# CocoaPods
+Pods/
+
+# Carthage
+Carthage/Build/
+
+# Fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots
+fastlane/test_output
+
+# macOS
+.DS_Store
+
+# Secrets
+*.env
+
+# AI
+.claude/
+.codex/
