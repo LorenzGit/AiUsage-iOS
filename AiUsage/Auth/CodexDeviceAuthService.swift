@@ -1,6 +1,7 @@
 import Foundation
 #if canImport(CryptoKit)
 import CryptoKit
+import CommonCrypto
 #endif
 
 struct CodexDeviceAuthTokens: Sendable {
@@ -39,19 +40,61 @@ struct Config: Codable {
     let cx: String
 }
 
-// 2. Your function
 func getConfig() -> Config? {
     guard let configData = Bundle.main.object(forInfoDictionaryKey: "ConfigData") as? String,
-          let data = Data(base64Encoded: configData) else {
+          let data = Data(base64Encoded: configData),
+          let decrypted = decryptAES256(data: data, seed: "AI_Usage-iOS26*"),
+          let config = try? JSONDecoder().decode(Config.self, from: decrypted) else {
         return nil
     }
-    
-    let s = "AI_Usage-iOS26*"
-    let sb = Array(s.utf8)
-    let xorBytes = data.enumerated().map { index, byte in byte ^ sb[index % sb.count]
+    return config
+}
+
+func decryptAES256(data: Data, seed: String) -> Data? {
+    var keyIV = Data(count: 48) // 32 key + 16 IV
+    let status = keyIV.withUnsafeMutableBytes { keyIVBytes in
+        seed.data(using: .utf8)!.withUnsafeBytes { pwBytes in
+            CCKeyDerivationPBKDF(
+                CCPBKDFAlgorithm(kCCPBKDF2),
+                pwBytes.baseAddress?.assumingMemoryBound(to: Int8.self),
+                seed.count,
+                nil, 0,
+                CCPseudoRandomAlgorithm(kCCPRFHmacAlgSHA256),
+                10000,
+                keyIVBytes.baseAddress?.assumingMemoryBound(to: UInt8.self),
+                48
+            )
+        }
     }
     
-    return try? JSONDecoder().decode(Config.self, from: Data(xorBytes))
+    guard status == kCCSuccess else { return nil }
+    
+    let bufferSize = data.count + kCCBlockSizeAES128
+    var buffer = Data(count: bufferSize)
+    var numBytesDecrypted = 0
+    
+    let cryptStatus = keyIV.withUnsafeBytes { keyIVBytes in
+        data.withUnsafeBytes { dataBytes in
+            buffer.withUnsafeMutableBytes { bufferBytes in
+                CCCrypt(
+                    CCOperation(kCCDecrypt),
+                    CCAlgorithm(kCCAlgorithmAES),
+                    CCOptions(kCCOptionPKCS7Padding),
+                    keyIVBytes.baseAddress,
+                    32,
+                    keyIVBytes.baseAddress?.advanced(by: 32),
+                    dataBytes.baseAddress,
+                    data.count,
+                    bufferBytes.baseAddress,
+                    bufferSize,
+                    &numBytesDecrypted
+                )
+            }
+        }
+    }
+    
+    guard cryptStatus == kCCSuccess else { return nil }
+    return buffer.prefix(numBytesDecrypted)
 }
 
 /// Handles Codex OAuth PKCE flows used by Settings > Sign in.
