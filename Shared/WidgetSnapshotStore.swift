@@ -3,6 +3,7 @@ import Foundation
 public enum WidgetSnapshotStore {
     public static let appGroupID = "group.aiusage.gamojo.com"
     private static let fileName = "widget-snapshot.json"
+    private static let refreshCredentialsFileName = "widget-refresh-credentials.json"
 
     public static func save(_ snapshot: WidgetSnapshot) {
         guard let url = snapshotURL() else { return }
@@ -20,6 +21,24 @@ public enum WidgetSnapshotStore {
         return try? decoder.decode(WidgetSnapshot.self, from: data)
     }
 
+    public static func saveRefreshCredentials(_ credentialsByProvider: [ProviderID: WidgetRefreshCredentials]) {
+        guard let url = refreshCredentialsURL() else { return }
+        let payload = WidgetRefreshCredentialsPayload(credentialsByProvider: credentialsByProvider)
+        do {
+            let data = try encoder.encode(payload)
+            try data.write(to: url, options: [.atomic])
+        } catch {
+            // Keep MVP simple: fail silently.
+        }
+    }
+
+    public static func loadRefreshCredentials() -> [ProviderID: WidgetRefreshCredentials] {
+        guard let url = refreshCredentialsURL() else { return [:] }
+        guard let data = try? Data(contentsOf: url) else { return [:] }
+        guard let payload = try? decoder.decode(WidgetRefreshCredentialsPayload.self, from: data) else { return [:] }
+        return payload.credentialsByProvider
+    }
+
     private static func snapshotURL() -> URL? {
         guard let container = FileManager.default.containerURL(
             forSecurityApplicationGroupIdentifier: appGroupID)
@@ -27,6 +46,15 @@ public enum WidgetSnapshotStore {
             return nil
         }
         return container.appendingPathComponent(fileName)
+    }
+
+    private static func refreshCredentialsURL() -> URL? {
+        guard let container = FileManager.default.containerURL(
+            forSecurityApplicationGroupIdentifier: appGroupID)
+        else {
+            return nil
+        }
+        return container.appendingPathComponent(refreshCredentialsFileName)
     }
 
     private static var encoder: JSONEncoder {
@@ -40,6 +68,32 @@ public enum WidgetSnapshotStore {
         decoder.dateDecodingStrategy = .iso8601
         return decoder
     }
+}
+
+public struct WidgetRefreshCredentials: Codable, Sendable {
+    public let accessToken: String
+    public let accountID: String?
+    public let cookieHeader: String?
+    public let geminiAuthorizationHeader: String?
+    public let geminiAPIKey: String?
+
+    public init(
+        accessToken: String,
+        accountID: String? = nil,
+        cookieHeader: String? = nil,
+        geminiAuthorizationHeader: String? = nil,
+        geminiAPIKey: String? = nil
+    ) {
+        self.accessToken = accessToken
+        self.accountID = accountID
+        self.cookieHeader = cookieHeader
+        self.geminiAuthorizationHeader = geminiAuthorizationHeader
+        self.geminiAPIKey = geminiAPIKey
+    }
+}
+
+private struct WidgetRefreshCredentialsPayload: Codable {
+    let credentialsByProvider: [ProviderID: WidgetRefreshCredentials]
 }
 
 public enum ProviderOrderStore {

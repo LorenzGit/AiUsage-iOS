@@ -84,19 +84,22 @@ struct AiUsageIntentTimelineProvider: AppIntentTimelineProvider {
         let storedSnapshot = WidgetSnapshotStore.load()
         let isMockData = storedSnapshot?.isMockData ?? false
         let snapshot: WidgetSnapshot
-        let refreshInterval: TimeInterval
 
         if isMockData {
             snapshot = MockSnapshotCycle.next()
             WidgetSnapshotStore.save(snapshot)
-            refreshInterval = 2
         } else {
-            snapshot = storedSnapshot ?? .preview
-            refreshInterval = 15 * 60
+            let fallbackSnapshot = storedSnapshot ?? .preview
+            snapshot = await refreshedSnapshotForWidgetView(fallback: fallbackSnapshot)
         }
 
         let entry = makeEntry(snapshot: snapshot, configuration: configuration)
-        return Timeline(entries: [entry], policy: .after(Date().addingTimeInterval(refreshInterval)))
+        if isMockData {
+            return Timeline(entries: [entry], policy: .after(Date().addingTimeInterval(2)))
+        }
+        // Ask again soon so "viewing the widget" gets frequent refresh opportunities,
+        // while still avoiding aggressive constant updates.
+        return Timeline(entries: [entry], policy: .after(Date().addingTimeInterval(60)))
     }
 
     private func makeEntry(snapshot: WidgetSnapshot, configuration: AiUsageWidgetConfigIntent) -> AiUsageTimelineEntry {
@@ -577,16 +580,85 @@ private struct LegacyProvider: TimelineProvider {
     }
 
     func getTimeline(in context: Context, completion: @escaping (Timeline<AiUsageTimelineEntry>) -> Void) {
-        let snapshot = WidgetSnapshotStore.load() ?? .preview
-        let providerSource = orderedWidgetProviders()
-        let entry = AiUsageTimelineEntry(
-            date: Date(),
-            snapshot: snapshot,
-            smallProviders: Array(providerSource.prefix(1)),
-            mediumProviders: providerSource,
-            largeProviders: providerSource
-        )
-        completion(Timeline(entries: [entry], policy: .after(Date().addingTimeInterval(15 * 60))))
+        let storedSnapshot = WidgetSnapshotStore.load() ?? .preview
+        Task {
+            let snapshot = await refreshedSnapshotForWidgetView(fallback: storedSnapshot)
+            let providerSource = orderedWidgetProviders()
+            let entry = AiUsageTimelineEntry(
+                date: Date(),
+                snapshot: snapshot,
+                smallProviders: Array(providerSource.prefix(1)),
+                mediumProviders: providerSource,
+                largeProviders: providerSource
+            )
+            completion(Timeline(entries: [entry], policy: .after(Date().addingTimeInterval(60))))
+        }
+    }
+}
+
+private func refreshedSnapshotForWidgetView(fallback: WidgetSnapshot) async -> WidgetSnapshot {
+    let credentialsByProvider = WidgetSnapshotStore.loadRefreshCredentials()
+    if credentialsByProvider.isEmpty { return fallback }
+
+    let providerOrder = orderedWidgetProviders()
+    var refreshedByProvider: [ProviderID: ProviderUsageSnapshot] = [:]
+
+    await withTaskGroup(of: (ProviderID, ProviderUsageSnapshot?).self) { group in
+        for provider in providerOrder {
+            guard let widgetCredentials = credentialsByProvider[provider] else { continue }
+            let credentials = ProviderCredentials(
+                accessToken: widgetCredentials.accessToken,
+                refreshToken: nil,
+                accountID: widgetCredentials.accountID,
+                cookieHeader: widgetCredentials.cookieHeader,
+                geminiAuthorizationHeader: widgetCredentials.geminiAuthorizationHeader,
+                geminiAPIKey: widgetCredentials.geminiAPIKey
+            )
+            group.addTask {
+                let snapshot = await fetchUsageWithTimeout(for: provider, credentials: credentials, timeoutSeconds: 8)
+                return (provider, snapshot)
+            }
+        }
+
+        for await (provider, snapshot) in group {
+            if let snapshot {
+                refreshedByProvider[provider] = snapshot
+            }
+        }
+    }
+
+    if refreshedByProvider.isEmpty { return fallback }
+
+    let fallbackByProvider = Dictionary(uniqueKeysWithValues: fallback.providers.map { ($0.provider, $0) })
+    let mergedProviders = providerOrder.compactMap { provider in
+        refreshedByProvider[provider] ?? fallbackByProvider[provider]
+    }
+
+    if mergedProviders.isEmpty { return fallback }
+
+    let refreshedSnapshot = WidgetSnapshot(generatedAt: Date(), isMockData: false, providers: mergedProviders)
+    WidgetSnapshotStore.save(refreshedSnapshot)
+    return refreshedSnapshot
+}
+
+private func fetchUsageWithTimeout(
+    for provider: ProviderID,
+    credentials: ProviderCredentials,
+    timeoutSeconds: UInt64
+) async -> ProviderUsageSnapshot? {
+    await withTaskGroup(of: ProviderUsageSnapshot?.self) { group in
+        group.addTask {
+            let client = ProviderAPIClientFactory.client(for: provider)
+            return try? await client.fetchUsage(using: credentials)
+        }
+        group.addTask {
+            try? await Task.sleep(nanoseconds: timeoutSeconds * 1_000_000_000)
+            return nil
+        }
+
+        let firstResult = await group.next() ?? nil
+        group.cancelAll()
+        return firstResult
     }
 }
 

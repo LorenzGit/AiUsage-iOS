@@ -1108,6 +1108,18 @@ final class AppModel: ObservableObject {
         let items = providerOrder.compactMap { snapshots[$0] }
         let snapshot = WidgetSnapshot(generatedAt: Date(), isMockData: useMockData, providers: items)
         WidgetSnapshotStore.save(snapshot)
+        var refreshCredentials: [ProviderID: WidgetRefreshCredentials] = [:]
+        for provider in ProviderID.allCases {
+            guard let credentials = credentialsStore.load(for: provider) else { continue }
+            refreshCredentials[provider] = WidgetRefreshCredentials(
+                accessToken: credentials.accessToken,
+                accountID: credentials.accountID,
+                cookieHeader: credentials.cookieHeader,
+                geminiAuthorizationHeader: credentials.geminiAuthorizationHeader,
+                geminiAPIKey: credentials.geminiAPIKey
+            )
+        }
+        WidgetSnapshotStore.saveRefreshCredentials(refreshCredentials)
         #if canImport(WidgetKit)
         WidgetCenter.shared.reloadAllTimelines()
         #endif
