@@ -31,7 +31,6 @@ struct WatchDashboardView: View {
         }
         .refreshable {
             sessionManager.requestRefresh()
-            // Brief pause so the refresh indicator shows
             try? await Task.sleep(for: .seconds(1))
         }
     }
@@ -39,9 +38,17 @@ struct WatchDashboardView: View {
     private var footer: some View {
         VStack(alignment: .leading, spacing: 4) {
             if let lastUpdated = sessionManager.lastUpdated {
-                Text("Updated \(RelativeDateText.abbreviated(from: lastUpdated))")
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
+                let isStale = Date().timeIntervalSince(lastUpdated) > 600 // > 10 min
+                HStack(spacing: 4) {
+                    if isStale {
+                        Image(systemName: "clock.badge.exclamationmark")
+                            .font(.caption2)
+                            .foregroundStyle(.orange)
+                    }
+                    Text("Updated \(RelativeDateText.abbreviated(from: lastUpdated))")
+                        .font(.caption2)
+                        .foregroundStyle(isStale ? .orange : .secondary)
+                }
             }
             if sessionManager.isRefreshing {
                 HStack(spacing: 4) {
@@ -50,6 +57,14 @@ struct WatchDashboardView: View {
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                 }
+            } else if !sessionManager.isPhoneReachable {
+                HStack(spacing: 4) {
+                    Image(systemName: "iphone.slash")
+                        .font(.caption2)
+                    Text("iPhone unavailable")
+                        .font(.caption2)
+                }
+                .foregroundStyle(.secondary)
             }
         }
         .listRowBackground(Color.clear)

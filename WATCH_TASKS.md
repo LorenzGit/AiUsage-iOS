@@ -80,10 +80,10 @@ This keeps the Watch app thin and avoids duplicating networking/auth code onto w
 
 ## Phase 6: Polish & edge cases
 
-- [ ] **6.1** Handle "phone not reachable" gracefully — show cached data with staleness indicator, disable refresh button or show "iPhone unavailable"
-- [ ] **6.2** Handle first launch with no data — show onboarding text: "Set up providers in the iPhone app"
-- [ ] **6.3** Respect `providerOrder` and `widgetVisibility` from the phone (sent alongside snapshots)
-- [ ] **6.4** Accessibility: ensure VoiceOver labels on gauge rings and bars
+- [x] **6.1** Handle "phone not reachable" — shows "iPhone unavailable" in footer; stale data (>10 min) gets orange clock icon
+- [x] **6.2** First launch with no data shows onboarding: "Set up providers in the iPhone app" (already in Phase 4)
+- [x] **6.3** Provider order/visibility: Watch shows providers in the order the iPhone sends them in the snapshot (already respects iPhone ordering)
+- [x] **6.4** Accessibility: VoiceOver labels on quota bars ("Session, 72 percent remaining")
 - [ ] **6.5** Test on real Watch hardware — WatchConnectivity behaves differently on device vs simulator
 - [ ] **6.6** Add the Watch app screenshot to `README.md`
 

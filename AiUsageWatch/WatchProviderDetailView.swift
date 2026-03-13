@@ -108,6 +108,8 @@ private struct QuotaBarView: View {
                     .foregroundStyle(.secondary)
             }
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(bar.title), \(Int(bar.remainingPercent)) percent remaining")
     }
 
     private func colorForPercent(_ percent: Double) -> Color {
