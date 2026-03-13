@@ -2,6 +2,10 @@
 
 Track AI usage quotas from your iPhone, with an optional home-screen widget.
 
+![Widget](readme_images/widgets.png)
+![Dashboard](readme_images/dashboard.png)
+![Settings](readme_images/settings.png)
+
 - no app backend
 - provider requests are in `AiUsage/Networking/ProviderAPIClients.swift`
 - credentials are stored locally in iOS Keychain (`AiUsage/Auth/CredentialsStore.swift`)
@@ -66,12 +70,6 @@ To disable it, uncheck/remove `DEBUG_UI` (or set it to `false`).
 7. Add mock entries in `Shared/MockSnapshots.swift` and `Shared/MockSnapshotsSecondary.swift`.
 
 If your provider needs extra credential fields, extend `AiUsage/Auth/Credentials.swift` (`ProviderCredentials`).
-
-## Screenshots
-
-![Widget](readme_images/widgets.png)
-![Dashboard](readme_images/dashboard.png)
-![Settings](readme_images/settings.png)
 
 ## License
 
