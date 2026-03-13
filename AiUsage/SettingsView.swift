@@ -105,7 +105,8 @@ struct SettingsView: View {
                 }
             }
 
-            if !isAuthenticatedForUI {
+            // Claude uses the subscription flow instead of the generic token field
+            if !isAuthenticatedForUI, provider != .claude {
                 HStack(spacing: 8) {
                     tokenField(for: provider)
                     if provider != .codex && provider != .gemini {
@@ -138,13 +139,15 @@ struct SettingsView: View {
                     (provider == .gemini && model.geminiLoginState?.isWorking == true))
                 )
             } else if isAuthenticatedForUI {
-                Button("Disconnect", role: .destructive) {
-                    Task {
-                        await performPrimaryAction(for: provider, isAuthenticated: true)
+                if provider != .claude {
+                    Button("Disconnect", role: .destructive) {
+                        Task {
+                            await performPrimaryAction(for: provider, isAuthenticated: true)
+                        }
                     }
+                    .buttonStyle(.borderedProminent)
                 }
-                .buttonStyle(.borderedProminent)
-            } else {
+            } else if provider != .claude {
                 Button("Save token") {
                     Task { await submitProviderInput(for: provider) }
                 }
@@ -152,7 +155,7 @@ struct SettingsView: View {
                 .disabled(model.tokenDrafts[provider, default: ""].trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             }
 
-            if !isAuthenticatedForUI {
+            if !isAuthenticatedForUI, provider != .claude {
                 Text(signInInstructions(for: provider))
                     .font(.footnote)
                     .foregroundStyle(.secondary)
@@ -243,14 +246,16 @@ struct SettingsView: View {
             }
         }
 
-        Button {
-            showAddClaudeAccount.toggle()
-        } label: {
-            Label("Add subscription", systemImage: "plus.circle")
-                .font(.subheadline)
+        if !model.claudeAccounts.isEmpty {
+            Button {
+                showAddClaudeAccount.toggle()
+            } label: {
+                Label("Add subscription", systemImage: "plus.circle")
+                    .font(.subheadline)
+            }
         }
 
-        if showAddClaudeAccount {
+        if showAddClaudeAccount || model.claudeAccounts.isEmpty {
             VStack(alignment: .leading, spacing: 8) {
                 TextField("Label (e.g. Personal, Company)", text: $newClaudeAccountLabel)
                     .textFieldStyle(.roundedBorder)
@@ -258,7 +263,7 @@ struct SettingsView: View {
                     .textFieldStyle(.roundedBorder)
                     .textInputAutocapitalization(.never)
                     .autocorrectionDisabled(true)
-                Button("Add") {
+                Button(model.claudeAccounts.isEmpty ? "Save" : "Add") {
                     let label = newClaudeAccountLabel.trimmingCharacters(in: .whitespacesAndNewlines)
                     let token = newClaudeAccountToken.trimmingCharacters(in: .whitespacesAndNewlines)
                     guard !label.isEmpty, !token.isEmpty else { return }
@@ -274,13 +279,11 @@ struct SettingsView: View {
                     newClaudeAccountLabel.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ||
                     newClaudeAccountToken.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
                 )
-            }
-        }
 
-        if model.claudeAccounts.isEmpty {
-            Text("Add multiple Claude subscriptions to track them all. The dashboard shows each account's usage separately.")
-                .font(.caption)
-                .foregroundStyle(.secondary)
+                Text("Go to claude.ai/settings → Developer Console → Application → Cookies → Copy sessionKey.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
         }
     }
 
