@@ -40,16 +40,14 @@ This keeps the Watch app thin and avoids duplicating networking/auth code onto w
 
 ## Phase 3: WatchConnectivity — Watch side
 
-- [ ] **3.1** Create `AiUsageWatch/WatchSessionManager.swift`
-  - Singleton `WCSessionDelegate` activated in the Watch app entry point
-  - Activates `WCSession` on launch
-- [ ] **3.2** Receive snapshots from `didReceiveUserInfo` and `didReceiveApplicationContext`
-  - Decode `WidgetSnapshot` from the payload
-  - Store in a local `@Published` observable for SwiftUI binding
-  - Persist to `UserDefaults` (watch-local) so cached data survives app termination
-- [ ] **3.3** Implement "request refresh" — send a message to the phone asking it to refresh and reply with fresh data
-  - Use `WCSession.default.sendMessage(_:replyHandler:errorHandler:)`
-  - Show a brief loading indicator while waiting
+- [x] **3.1** Create `AiUsageWatch/WatchSessionManager.swift`
+  - `@Observable` singleton with separate `WCSessionDelegate` (avoids `@MainActor` conflict)
+  - Activated in `AiUsageWatchApp.init()`
+- [x] **3.2** Receive snapshots from `didReceiveUserInfo` and `didReceiveApplicationContext`
+  - Decodes `WidgetSnapshot` from payload, stores in `@Observable` property
+  - Persists to `UserDefaults` (watch-local) so cached data survives app termination
+- [x] **3.3** Implement "request refresh" — sends `{"action": "refresh"}` to phone
+  - Uses `sendMessage` with reply handler; sets `isRefreshing` for loading indicator
 
 ## Phase 4: Watch app UI
 
