@@ -1,7 +1,10 @@
+import Combine
 import SwiftUI
 
 struct WatchDashboardView: View {
     var sessionManager: WatchSessionManager
+    @State private var now = Date()
+    private let ticker = Timer.publish(every: 60, on: .main, in: .common).autoconnect()
 
     var body: some View {
         NavigationStack {
@@ -13,6 +16,7 @@ struct WatchDashboardView: View {
                 }
             }
             .navigationTitle("AiUsage")
+            .onReceive(ticker) { now = $0 }
         }
     }
 
@@ -38,15 +42,15 @@ struct WatchDashboardView: View {
     private var footer: some View {
         VStack(alignment: .leading, spacing: 4) {
             if let lastUpdated = sessionManager.lastUpdated {
-                let isStale = Date().timeIntervalSince(lastUpdated) > 600 // > 10 min
+                let minutesAgo = max(0, Int(now.timeIntervalSince(lastUpdated) / 60))
+                let isStale = minutesAgo >= 10
                 HStack(spacing: 4) {
                     if isStale {
                         Image(systemName: "clock.badge.exclamationmark")
                             .font(.caption2)
                             .foregroundStyle(.orange)
                     }
-                    // Text(date, style:) auto-updates as time passes
-                    Text("Updated ") + Text(lastUpdated, style: .relative) + Text(" ago")
+                    Text(minutesAgo < 1 ? "Updated just now" : "Updated \(minutesAgo) min ago")
                 }
                 .font(.caption2)
                 .foregroundStyle(isStale ? .orange : .secondary)
