@@ -221,13 +221,11 @@
 				2C0CD6CB2F31229F00B8A1C2 /* Frameworks */,
 				2C0CD6CC2F31229F00B8A1C2 /* Resources */,
 				2C0CD6FB2F31256E00B8A1C2 /* Embed Foundation Extensions */,
-				BB0001000000000000000B03 /* Embed Watch Content */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 				2C0CD6F52F31256E00B8A1C2 /* PBXTargetDependency */,
-				BB0001000000000000000B04 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				2C0CD6D02F31229F00B8A1C2 /* AiUsage */,
