@@ -45,10 +45,11 @@ struct WatchDashboardView: View {
                             .font(.caption2)
                             .foregroundStyle(.orange)
                     }
-                    Text("Updated \(RelativeDateText.abbreviated(from: lastUpdated))")
-                        .font(.caption2)
-                        .foregroundStyle(isStale ? .orange : .secondary)
+                    // Text(date, style:) auto-updates as time passes
+                    Text("Updated ") + Text(lastUpdated, style: .relative) + Text(" ago")
                 }
+                .font(.caption2)
+                .foregroundStyle(isStale ? .orange : .secondary)
             }
             if sessionManager.isRefreshing {
                 HStack(spacing: 4) {
