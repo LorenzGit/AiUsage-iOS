@@ -27,16 +27,33 @@ struct ContentView: View {
                         emptyState
                     } else {
                         ForEach(visibleProviders) { provider in
-                            ProviderDashboardCard(
-                                provider: provider,
-                                snapshot: model.snapshots[provider],
-                                error: model.errors[provider],
-                                isLoading: model.loadingProviders.contains(provider),
-                                palette: palette,
-                                onRefresh: {
-                                    Task { await model.refresh(provider) }
-                                }
-                            )
+                            if provider == .claude, model.hasMultipleClaudeAccounts {
+                                ClaudeMultiAccountCard(
+                                    accounts: model.claudeAccounts,
+                                    palette: palette,
+                                    onRefresh: { id in
+                                        Task { await model.refreshClaudeAccount(id: id) }
+                                    },
+                                    onRefreshAll: {
+                                        Task { await model.refreshAllClaudeAccounts() }
+                                    }
+                                )
+                            } else {
+                                ProviderDashboardCard(
+                                    provider: provider,
+                                    snapshot: model.snapshots[provider],
+                                    error: model.errors[provider],
+                                    isLoading: model.loadingProviders.contains(provider),
+                                    palette: palette,
+                                    onRefresh: {
+                                        if provider == .claude, model.hasAnyClaudeAccount {
+                                            Task { await model.refreshAllClaudeAccounts() }
+                                        } else {
+                                            Task { await model.refresh(provider) }
+                                        }
+                                    }
+                                )
+                            }
                         }
                     }
                 }
@@ -449,6 +466,172 @@ private struct QuotaSectionRow: View {
                 .foregroundStyle(palette.cardSecondaryText)
             }
         }
+    }
+}
+
+// MARK: - Claude multi-account card
+
+private struct ClaudeMultiAccountCard: View {
+    let accounts: [ClaudeAccountState]
+    let palette: DashboardPalette
+    let onRefresh: (String) -> Void
+    let onRefreshAll: () -> Void
+
+    @State private var isExpanded = true
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            // Header
+            HStack(spacing: 8) {
+                ProviderIconImage(provider: .claude, size: 15, tint: palette.cardIconTint)
+                Text("Claude")
+                    .font(.headline)
+                    .foregroundStyle(palette.cardTitleText)
+                Text("(\(accounts.count) accounts)")
+                    .font(.caption)
+                    .foregroundStyle(palette.cardSecondaryText)
+                Spacer()
+                Button(action: onRefreshAll) {
+                    Image(systemName: "arrow.clockwise.circle.fill")
+                        .font(.title3)
+                }
+                .buttonStyle(.plain)
+                .foregroundStyle(palette.cardBodyText)
+                Button {
+                    withAnimation(.easeInOut(duration: 0.2)) {
+                        isExpanded.toggle()
+                    }
+                } label: {
+                    Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
+                        .font(.caption.weight(.semibold))
+                }
+                .buttonStyle(.plain)
+                .foregroundStyle(palette.cardSecondaryText)
+            }
+
+            if isExpanded {
+                ForEach(accounts) { account in
+                    claudeAccountRow(account)
+                    if account.id != accounts.last?.id {
+                        Divider().overlay(palette.cardBorder)
+                    }
+                }
+            } else {
+                // Collapsed: show worst-case summary
+                if let worst = worstAccount {
+                    HStack {
+                        Text(worst.label)
+                            .font(.caption.weight(.medium))
+                            .foregroundStyle(palette.cardBodyText)
+                        Spacer()
+                        if let snap = worst.snapshot,
+                           let pct = snap.resolvedSessionRemainingPercent {
+                            Text("\(ProviderID.claude.primaryBarTitle) \(Int(pct))%")
+                                .font(.caption.weight(.semibold))
+                                .foregroundStyle(palette.cardBodyText)
+                        }
+                    }
+                }
+            }
+        }
+        .padding(14)
+        .background(
+            LinearGradient(
+                colors: palette.cardGradient,
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            ),
+            in: RoundedRectangle(cornerRadius: 18, style: .continuous)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .stroke(palette.cardBorder, lineWidth: 1)
+        )
+    }
+
+    @ViewBuilder
+    private func claudeAccountRow(_ account: ClaudeAccountState) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                Text(account.label)
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(palette.cardBodyText)
+                Spacer()
+                if account.isLoading {
+                    ProgressView()
+                        .tint(palette.cardBodyText)
+                } else {
+                    Button { onRefresh(account.id) } label: {
+                        Image(systemName: "arrow.clockwise")
+                            .font(.caption)
+                    }
+                    .buttonStyle(.plain)
+                    .foregroundStyle(palette.cardSecondaryText)
+                }
+            }
+
+            if let snapshot = account.snapshot {
+                quotaRow(title: ProviderID.claude.primaryBarTitle, percent: snapshot.resolvedSessionRemainingPercent, resetAt: snapshot.sessionResetsAt)
+                quotaRow(title: ProviderID.claude.secondaryBarTitle, percent: snapshot.resolvedWeeklyRemainingPercent, resetAt: snapshot.weeklyResetsAt)
+                if let tertiary = snapshot.resolvedTertiaryRemainingPercent {
+                    quotaRow(title: ProviderID.claude.tertiaryBarTitle, percent: tertiary, resetAt: snapshot.tertiaryResetsAt)
+                }
+                Text(snapshot.statusText)
+                    .font(.caption2)
+                    .foregroundStyle(palette.cardSecondaryText)
+            } else if account.error == nil {
+                Text("No data yet")
+                    .font(.caption)
+                    .foregroundStyle(palette.cardSecondaryText)
+            }
+
+            if let error = account.error, !error.isEmpty {
+                Text(error)
+                    .font(.caption2)
+                    .foregroundStyle(.red.opacity(0.92))
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func quotaRow(title: String, percent: Double?, resetAt: Date?) -> some View {
+        if let percent {
+            HStack {
+                Text(title)
+                    .font(.caption)
+                    .foregroundStyle(palette.cardSecondaryText)
+                    .frame(width: 30, alignment: .leading)
+                GeometryReader { proxy in
+                    ZStack(alignment: .leading) {
+                        Capsule().fill(palette.meterTrack)
+                        Capsule()
+                            .fill(LinearGradient(
+                                colors: ProviderID.claude.barColors,
+                                startPoint: .leading, endPoint: .trailing
+                            ))
+                            .frame(width: proxy.size.width * min(max(percent, 0), 100) / 100)
+                    }
+                }
+                .frame(height: 8)
+                Text("\(Int(percent.rounded()))%")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(palette.cardBodyText)
+                    .frame(width: 32, alignment: .trailing)
+                if let resetAt {
+                    Text(RelativeDateText.abbreviated(from: resetAt))
+                        .font(.caption2)
+                        .foregroundStyle(palette.cardSecondaryText)
+                        .frame(width: 50, alignment: .trailing)
+                }
+            }
+        }
+    }
+
+    private var worstAccount: ClaudeAccountState? {
+        accounts.min(by: { a, b in
+            (a.snapshot?.resolvedSessionRemainingPercent ?? 100) <
+            (b.snapshot?.resolvedSessionRemainingPercent ?? 100)
+        })
     }
 }
 

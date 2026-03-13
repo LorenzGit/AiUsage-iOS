@@ -16,6 +16,7 @@ final class AppModel: ObservableObject {
     @Published var snapshots: [ProviderID: ProviderUsageSnapshot] = [:]
     @Published var errors: [ProviderID: String] = [:]
     @Published var loadingProviders: Set<ProviderID> = []
+    @Published var claudeAccounts: [ClaudeAccountState] = []
     @Published var codexLoginState: CodexLoginState?
     @Published var geminiLoginState: GeminiLoginState?
 
@@ -49,6 +50,8 @@ final class AppModel: ObservableObject {
             tokenDrafts[provider] = token
             savedTokens[provider] = token
         }
+
+        loadClaudeAccounts()
 
         if useMockData {
             applyMockSnapshots()
@@ -119,11 +122,18 @@ final class AppModel: ObservableObject {
 
         await withTaskGroup(of: Void.self) { group in
             for provider in providersToRefresh {
+                // Skip individual Claude refresh if multi-account handles it
+                if provider == .claude, hasAnyClaudeAccount { continue }
                 group.addTask { [weak self] in
                     guard let self else { return }
                     await self.refresh(provider)
                 }
             }
+        }
+
+        // Refresh Claude multi-accounts (updates snapshots[.claude] via syncClaudePrimarySnapshot)
+        if hasAnyClaudeAccount {
+            await refreshAllClaudeAccounts()
         }
 
         persistWidgetSnapshot()

@@ -199,8 +199,90 @@ struct SettingsView: View {
                     .font(.footnote)
                     .foregroundStyle(.red)
             }
+
+            // Claude multi-account management
+            if provider == .claude, isAuthenticatedForUI {
+                claudeAccountsSection
+            }
         } header: {
             providerHeader(provider)
+        }
+    }
+
+    @State private var newClaudeAccountLabel = ""
+    @State private var newClaudeAccountToken = ""
+    @State private var showAddClaudeAccount = false
+
+    @ViewBuilder
+    private var claudeAccountsSection: some View {
+        Divider()
+
+        if !model.claudeAccounts.isEmpty {
+            VStack(alignment: .leading, spacing: 6) {
+                Text("Subscriptions")
+                    .font(.footnote.weight(.semibold))
+                ForEach(model.claudeAccounts) { account in
+                    HStack {
+                        Image(systemName: "person.circle")
+                            .foregroundStyle(.secondary)
+                        Text(account.label)
+                            .font(.subheadline)
+                        Spacer()
+                        if account.snapshot != nil {
+                            Image(systemName: "checkmark.circle.fill")
+                                .foregroundStyle(.green)
+                                .font(.caption)
+                        }
+                        Button(role: .destructive) {
+                            model.removeClaudeAccount(id: account.id)
+                        } label: {
+                            Image(systemName: "trash")
+                                .font(.caption)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+            }
+        }
+
+        Button {
+            showAddClaudeAccount.toggle()
+        } label: {
+            Label("Add subscription", systemImage: "plus.circle")
+                .font(.subheadline)
+        }
+
+        if showAddClaudeAccount {
+            VStack(alignment: .leading, spacing: 8) {
+                TextField("Label (e.g. Personal, Company)", text: $newClaudeAccountLabel)
+                    .textFieldStyle(.roundedBorder)
+                SecureField("Claude token or sessionKey cookie", text: $newClaudeAccountToken)
+                    .textFieldStyle(.roundedBorder)
+                    .textInputAutocapitalization(.never)
+                    .autocorrectionDisabled(true)
+                Button("Add") {
+                    let label = newClaudeAccountLabel.trimmingCharacters(in: .whitespacesAndNewlines)
+                    let token = newClaudeAccountToken.trimmingCharacters(in: .whitespacesAndNewlines)
+                    guard !label.isEmpty, !token.isEmpty else { return }
+                    Task {
+                        await model.addClaudeAccount(label: label, input: token)
+                        newClaudeAccountLabel = ""
+                        newClaudeAccountToken = ""
+                        showAddClaudeAccount = false
+                    }
+                }
+                .buttonStyle(.borderedProminent)
+                .disabled(
+                    newClaudeAccountLabel.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ||
+                    newClaudeAccountToken.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                )
+            }
+        }
+
+        if model.claudeAccounts.isEmpty {
+            Text("Add multiple Claude subscriptions to track them all. The dashboard shows each account's usage separately.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
         }
     }
 
