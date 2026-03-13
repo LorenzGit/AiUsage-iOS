@@ -327,9 +327,15 @@ private struct ProviderDashboardCard: View {
                     )
                 }
 
-                Text(snapshot.statusText)
-                    .font(.caption)
-                    .foregroundStyle(palette.cardSecondaryText)
+                if error != nil {
+                    Text("Stale · \(snapshot.statusText)")
+                        .font(.caption)
+                        .foregroundStyle(.orange.opacity(0.85))
+                } else {
+                    Text(snapshot.statusText)
+                        .font(.caption)
+                        .foregroundStyle(palette.cardSecondaryText)
+                }
             } else {
                 Text("No data yet. Configure this provider in Settings.")
                     .font(.subheadline)

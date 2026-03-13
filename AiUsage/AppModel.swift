@@ -153,7 +153,8 @@ final class AppModel: ObservableObject {
             snapshots[provider] = snapshot
             errors[provider] = nil
         } catch {
-            snapshots.removeValue(forKey: provider)
+            // Keep stale snapshot data so the dashboard still shows last-known usage
+            // rather than going blank. The error message indicates the data is stale.
             errors[provider] = error.localizedDescription
         }
     }
