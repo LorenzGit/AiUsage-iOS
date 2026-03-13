@@ -501,7 +501,7 @@ struct ClaudeAPIClient: ProviderAPIClient {
             {
                 let snippet = String(rawBody.prefix(260))
                 throw ProviderFetchError.notSupported(
-                    message: "Gemini HTTP \(http.statusCode): \(snippet)"
+                    message: "Claude HTTP \(http.statusCode): \(snippet)"
                 )
             }
             throw ProviderFetchError.server(statusCode: http.statusCode)
