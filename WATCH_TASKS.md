@@ -10,19 +10,20 @@ This keeps the Watch app thin and avoids duplicating networking/auth code onto w
 
 ## Phase 1: Xcode project setup
 
-- [ ] **1.1** Add a watchOS App target (`AiUsageWatch`) to the Xcode project
+- [x] **1.1** Add a watchOS App target (`AiUsageWatch`) to the Xcode project
   - Product type: watchOS App (SwiftUI lifecycle, no storyboard)
   - Deployment target: watchOS 26.2 (matches iOS 26.2)
   - Bundle ID: `aiusage.gamojo.com.watchkitapp`
-- [ ] **1.2** Add the same App Group entitlement (`group.aiusage.gamojo.com`) — not strictly needed for Watch Connectivity but useful if sharing UserDefaults for provider order
-- [ ] **1.3** Add the same `keychain-access-groups` entitlement (`$(AppIdentifierPrefix)aiusage.gamojo.com.shared`) for potential future credential sharing
-- [ ] **1.4** Add Shared sources to the Watch target's build:
+- [x] **1.2** Add the same App Group entitlement (`group.aiusage.gamojo.com`) — not strictly needed for Watch Connectivity but useful if sharing UserDefaults for provider order
+- [x] **1.3** Add the same `keychain-access-groups` entitlement (`$(AppIdentifierPrefix)aiusage.gamojo.com.shared`) for potential future credential sharing
+- [x] **1.4** Add Shared sources to the Watch target's build:
   - `Shared/ProviderID.swift` (already uses `#if canImport` guards for UIKit)
   - `Shared/Snapshots.swift` (pure Codable, no platform deps)
   - `Shared/MockSnapshots.swift` + `MockSnapshotsSecondary.swift` (for previews)
   - `Shared/ProviderAssets.xcassets` (SVG icons render on watchOS)
   - **Do not** include `Shared/WidgetSnapshotStore.swift` (App Group file/keychain storage is iPhone-side only)
-- [ ] **1.5** Verify the Watch target builds with the shared sources (check `canImport` guards compile cleanly on watchOS)
+- [x] **1.5** Verify the Watch target builds with the shared sources (check `canImport` guards compile cleanly on watchOS)
+  - Fixed: `MockSnapshots.swift` `WidgetSnapshotStore` reference guarded with `#if os(watchOS)`
 
 ## Phase 2: WatchConnectivity — iPhone side
 
