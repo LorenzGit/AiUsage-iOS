@@ -6,5 +6,9 @@
 	<array>
 		<string>group.aiusage.gamojo.com</string>
 	</array>
+	<key>keychain-access-groups</key>
+	<array>
+		<string>$(AppIdentifierPrefix)aiusage.gamojo.com.shared</string>
+	</array>
 </dict>
 </plist>
