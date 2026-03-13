@@ -257,6 +257,7 @@ final class AppModel: ObservableObject {
         #if canImport(WidgetKit)
         WidgetCenter.shared.reloadAllTimelines()
         #endif
+        WatchSessionManager.shared.sendSnapshot(snapshot)
     }
 
     // MARK: - Mock data

@@ -60,6 +60,14 @@ struct ContentView: View {
         }
         .task {
             await model.load()
+            WatchSessionManager.shared.onRefreshRequest = { [weak model] in
+                guard let model else {
+                    return WidgetSnapshot(generatedAt: Date(), isMockData: false, providers: [])
+                }
+                await model.refreshAll()
+                let items = model.providerOrder.compactMap { model.snapshots[$0] }
+                return WidgetSnapshot(generatedAt: Date(), isMockData: model.useMockData, providers: items)
+            }
         }
         .task(id: model.useMockData) {
             await runPollingLoop()

@@ -27,16 +27,16 @@ This keeps the Watch app thin and avoids duplicating networking/auth code onto w
 
 ## Phase 2: WatchConnectivity — iPhone side
 
-- [ ] **2.1** Create `AiUsage/WatchSessionManager.swift`
+- [x] **2.1** Create `AiUsage/WatchSessionManager.swift`
   - Singleton `WCSessionDelegate` activated in `AiUsageApp.swift`
   - Activates `WCSession` on app launch
-- [ ] **2.2** Send snapshot to Watch whenever `persistWidgetSnapshot()` runs
-  - Use `WCSession.default.transferUserInfo(_:)` for reliable background delivery
-  - Payload: JSON-encoded `WidgetSnapshot` + provider order array
-  - Also send via `updateApplicationContext(_:)` so the Watch always has the latest on launch
-- [ ] **2.3** Handle `session(_:didReceiveMessage:)` for Watch-initiated refresh requests
-  - When Watch sends a "refresh" message, trigger `refreshAll()` and reply with the new snapshot
-- [ ] **2.4** Guard all WatchConnectivity calls behind `WCSession.isSupported()` (no-op on simulator without paired Watch)
+- [x] **2.2** Send snapshot to Watch whenever `persistWidgetSnapshot()` runs
+  - Uses `updateApplicationContext` (latest-wins) and `transferUserInfo` (queued reliable delivery)
+  - Payload: JSON-encoded `WidgetSnapshot`
+- [x] **2.3** Handle `session(_:didReceiveMessage:)` for Watch-initiated refresh requests
+  - When Watch sends `{"action": "refresh"}`, triggers `refreshAll()` and replies with new snapshot
+  - Refresh handler wired in ContentView's `.task` block
+- [x] **2.4** Guard all WatchConnectivity calls behind `WCSession.isSupported()` (no-op on simulator without paired Watch)
 
 ## Phase 3: WatchConnectivity — Watch side
 
