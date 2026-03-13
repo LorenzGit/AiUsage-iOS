@@ -76,7 +76,7 @@ This keeps the Watch app thin and avoids duplicating networking/auth code onto w
 - [x] **5.3** `WatchComplicationIntent` with `WatchProviderOption` enum + recommendations
 - [x] **5.4** Timeline provider reads from UserDefaults cache, 15-min refresh policy
   - `WatchSessionManager` calls `reloadAllTimelines()` when new data arrives
-- [ ] **5.5** Add complication previews
+- [x] **5.5** Complication previews for all four families (Claude 13%/37%)
 
 ## Phase 6: Polish & edge cases
 

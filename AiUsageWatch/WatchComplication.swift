@@ -244,3 +244,35 @@ private func colorForPercent(_ percent: Double) -> Color {
     if percent > 20 { return .yellow }
     return .red
 }
+
+// MARK: - Previews
+
+private let previewEntry = WatchComplicationEntry(
+    date: .now,
+    providerID: .claude,
+    snapshot: PreviewData.claude
+)
+
+#Preview("Circular", as: .accessoryCircular) {
+    AiUsageWatchComplication()
+} timeline: {
+    previewEntry
+}
+
+#Preview("Corner", as: .accessoryCorner) {
+    AiUsageWatchComplication()
+} timeline: {
+    previewEntry
+}
+
+#Preview("Rectangular", as: .accessoryRectangular) {
+    AiUsageWatchComplication()
+} timeline: {
+    previewEntry
+}
+
+#Preview("Inline", as: .accessoryInline) {
+    AiUsageWatchComplication()
+} timeline: {
+    previewEntry
+}
