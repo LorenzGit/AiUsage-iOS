@@ -66,19 +66,16 @@ This keeps the Watch app thin and avoids duplicating networking/auth code onto w
 
 ## Phase 5: Watch complications
 
-- [ ] **5.1** Create a `CLKComplicationDataSource` (or WidgetKit `Widget` for watchOS 10+)
-  - Use WidgetKit since the project targets watchOS 26.2
-  - Reuse the same `WidgetSnapshot` data model
-- [ ] **5.2** Define complication families:
-  - **Circular** (`.accessoryCircular`): single provider gauge ring with % label
-  - **Corner** (`.accessoryCorner`): provider name + remaining %
-  - **Rectangular** (`.accessoryRectangular`): 1–2 providers with inline bars (similar to small iOS widget)
-  - **Inline** (`.accessoryInline`): "Codex 72% · Claude 58%"
-- [ ] **5.3** Add `AppIntentConfiguration` for complication provider selection (which provider to show)
-  - Reuse `ProviderOption` enum pattern from the iOS widget
-- [ ] **5.4** Timeline provider reads cached `WidgetSnapshot` from Watch-local `UserDefaults`
-  - Timeline entries refresh when WatchConnectivity delivers new data
-  - Call `WidgetCenter.shared.reloadAllTimelines()` when new snapshot arrives
+- [x] **5.1** WidgetKit-based complications in `WatchComplication.swift`
+  - Reuses `WidgetSnapshot` from UserDefaults cache
+- [x] **5.2** Four complication families:
+  - **Circular**: gauge ring with % label
+  - **Corner**: bold % with provider name widget label
+  - **Rectangular**: provider name + two linear gauge bars with labels
+  - **Inline**: "Codex 72%"
+- [x] **5.3** `WatchComplicationIntent` with `WatchProviderOption` enum + recommendations
+- [x] **5.4** Timeline provider reads from UserDefaults cache, 15-min refresh policy
+  - `WatchSessionManager` calls `reloadAllTimelines()` when new data arrives
 - [ ] **5.5** Add complication previews
 
 ## Phase 6: Polish & edge cases

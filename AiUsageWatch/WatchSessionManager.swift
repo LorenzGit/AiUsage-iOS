@@ -1,6 +1,7 @@
 import Foundation
 import Observation
 import WatchConnectivity
+import WidgetKit
 
 /// Manages WatchConnectivity on the Watch side.
 /// Receives usage snapshots from the iPhone and caches them locally.
@@ -65,6 +66,7 @@ final class WatchSessionManager: NSObject {
         snapshot = decoded
         lastUpdated = Date()
         cache(decoded)
+        WidgetCenter.shared.reloadAllTimelines()
     }
 
     private func cache(_ snapshot: WidgetSnapshot) {
