@@ -1,6 +1,6 @@
 import Foundation
 
-public struct ProviderUsageSnapshot: Codable, Identifiable, Sendable {
+public struct ProviderUsageSnapshot: Codable, Identifiable, Hashable, Sendable {
     public let provider: ProviderID
     public let usedPercent: Double?
     public let secondaryUsedPercent: Double?

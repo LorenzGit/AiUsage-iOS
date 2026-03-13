@@ -51,23 +51,17 @@ This keeps the Watch app thin and avoids duplicating networking/auth code onto w
 
 ## Phase 4: Watch app UI
 
-- [ ] **4.1** Create `AiUsageWatch/AiUsageWatchApp.swift` — SwiftUI `@main` entry point
-- [ ] **4.2** Create `AiUsageWatch/WatchDashboardView.swift` — main view
-  - `NavigationStack` with a `List` of provider rows
-  - Each row: provider icon + name + primary remaining % + secondary remaining %
-  - Tapping a row navigates to a detail view
-  - Pull-to-refresh triggers a refresh request to the phone
-  - "Updated X ago" footer text
-  - If no data and phone unreachable: "Open AiUsage on iPhone" message
-- [ ] **4.3** Create `AiUsageWatch/WatchProviderDetailView.swift`
-  - Full-screen detail for one provider
-  - Show all quota bars (primary, secondary, tertiary) with labels and percentages
-  - Reset time for each bar
-  - Codex weekly pace deficit warning (reuse `codexWeeklyPaceEstimate()` from Snapshots.swift)
-- [ ] **4.4** Create `AiUsageWatch/WatchProviderRow.swift` — list row component
-  - Compact layout: icon, name, two small gauge rings or inline bars
-- [ ] **4.5** Add color palette for Watch (derive from existing `ProviderID.barColors`)
-  - Watch backgrounds are always dark; only need one palette variant
+- [x] **4.1** Create `AiUsageWatch/AiUsageWatchApp.swift` — SwiftUI `@main` entry point
+- [x] **4.2** Create `AiUsageWatch/WatchDashboardView.swift` — main view
+  - `NavigationStack` with `List` of provider rows + pull-to-refresh
+  - Footer shows "Updated X ago" + refreshing indicator
+  - Empty state: "Set up providers in the iPhone app"
+- [x] **4.3** Create `AiUsageWatch/WatchProviderDetailView.swift`
+  - Quota bars with capsule progress, reset times, Codex pace warning
+  - Color-coded percentages (green/yellow/red)
+- [x] **4.4** `WatchProviderRow` (inline in `WatchDashboardView.swift`)
+  - Provider icon + name + compact quota labels with colored percentages
+- [x] **4.5** Colors derived from existing `ProviderID.barColors` — no separate palette needed
 - [ ] **4.6** Support mock data for SwiftUI previews using `MockSnapshotCycle`
 
 ## Phase 5: Watch complications
