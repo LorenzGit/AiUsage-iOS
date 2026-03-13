@@ -27,7 +27,6 @@
 		BB0001000000000000000A03 /* MockSnapshots.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C0CD71A2F31265A00B8A1C2 /* MockSnapshots.swift */; };
 		BB0001000000000000000A04 /* MockSnapshotsSecondary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C0CD71B2F31265A00B8A1C2 /* MockSnapshotsSecondary.swift */; };
 		BB0001000000000000000A05 /* ProviderAssets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7A9E4D3C1B2A4F6E9D8C7B10 /* ProviderAssets.xcassets */; };
-		BB0001000000000000000B02 /* AiUsageWatch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = BB00010000000000000001 /* AiUsageWatch.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -45,13 +44,6 @@
 			remoteGlobalIDString = 2C0CD6CD2F31229F00B8A1C2;
 			remoteInfo = AiUsage;
 		};
-		BB0001000000000000000B01 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 2C0CD6C62F31229F00B8A1C2 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = BB00010000000000000002;
-			remoteInfo = AiUsageWatch;
-		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -64,17 +56,6 @@
 				2C0CD6F62F31256E00B8A1C2 /* AiUsageWidgetExtension.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		BB0001000000000000000B03 /* Embed Watch Content */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
-			dstSubfolderSpec = 16;
-			files = (
-				BB0001000000000000000B02 /* AiUsageWatch.app in Embed Watch Content */,
-			);
-			name = "Embed Watch Content";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
@@ -226,6 +207,7 @@
 			);
 			dependencies = (
 				2C0CD6F52F31256E00B8A1C2 /* PBXTargetDependency */,
+				BB0001000000000000000B04 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				2C0CD6D02F31229F00B8A1C2 /* AiUsage */,
@@ -440,11 +422,6 @@
 			isa = PBXTargetDependency;
 			target = 2C0CD6CD2F31229F00B8A1C2 /* AiUsage */;
 			targetProxy = AABB0001000000000000AA01 /* PBXContainerItemProxy */;
-		};
-		BB0001000000000000000B04 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = BB00010000000000000002 /* AiUsageWatch */;
-			targetProxy = BB0001000000000000000B01 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
