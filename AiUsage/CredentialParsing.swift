@@ -533,24 +533,22 @@ private enum GeminiAuthJSONSupport {
         guard trimmed.hasPrefix("{"), trimmed.hasSuffix("}") else {
             return nil
         }
-        return try parseRawAuthJSON(data: Data(trimmed.utf8))
-    }
 
-    private static func parseRawAuthJSON(data: Data) throws -> ProviderCredentials {
-        guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] else {
-            throw GeminiAuthJSONError.invalidJSON
+        guard let json = try JSONSerialization.jsonObject(with: Data(trimmed.utf8)) as? [String: Any] else {
+            return nil
         }
 
         let payload = (json["tokens"] as? [String: Any]) ?? json
-        guard let accessToken = firstString(
-            in: payload,
-            keys: ["access_token", "accessToken", "token"]
-        ) else {
-            throw GeminiAuthJSONError.missingAccessToken
+
+        // Only claim ownership when the JSON contains auth-like keys.
+        // Studio headers JSON (cookie/authorization) should fall through to
+        // parseGeminiStudioHeaders instead.
+        let authKeys = ["access_token", "accessToken", "token"]
+        guard authKeys.contains(where: { payload[$0] != nil }) else {
+            return nil
         }
 
-        let trimmedAccessToken = accessToken.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmedAccessToken.isEmpty else {
+        guard let accessToken = firstString(in: payload, keys: authKeys) else {
             throw GeminiAuthJSONError.missingAccessToken
         }
 
@@ -560,7 +558,7 @@ private enum GeminiAuthJSONSupport {
         )?.trimmingCharacters(in: .whitespacesAndNewlines)
 
         return ProviderCredentials(
-            accessToken: trimmedAccessToken,
+            accessToken: accessToken,
             refreshToken: (refreshToken?.isEmpty == false) ? refreshToken : nil
         )
     }
