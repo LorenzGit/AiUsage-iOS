@@ -201,7 +201,7 @@ struct SettingsView: View {
             }
 
             // Claude multi-account management
-            if provider == .claude, isAuthenticatedForUI {
+            if provider == .claude {
                 claudeAccountsSection
             }
         } header: {
@@ -215,8 +215,6 @@ struct SettingsView: View {
 
     @ViewBuilder
     private var claudeAccountsSection: some View {
-        Divider()
-
         if !model.claudeAccounts.isEmpty {
             VStack(alignment: .leading, spacing: 6) {
                 Text("Subscriptions")
