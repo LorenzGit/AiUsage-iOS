@@ -53,6 +53,12 @@ final class WatchSessionManager: NSObject {
         return WCSession.default.isReachable
     }
 
+    /// Inject snapshot directly (for SwiftUI previews).
+    func applyPreview(_ snap: WidgetSnapshot) {
+        snapshot = snap
+        lastUpdated = snap.generatedAt
+    }
+
     // MARK: - Private
 
     /// Prevent delegate from being deallocated

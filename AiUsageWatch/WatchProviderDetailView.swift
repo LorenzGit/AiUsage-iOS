@@ -121,3 +121,9 @@ private struct QuotaBarView: View {
 
 // Make BarModel accessible to QuotaBarView
 extension WatchProviderDetailView.BarModel: @retroactive Sendable {}
+
+#Preview("Claude Detail") {
+    NavigationStack {
+        WatchProviderDetailView(provider: PreviewData.claude)
+    }
+}

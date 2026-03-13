@@ -62,7 +62,7 @@ This keeps the Watch app thin and avoids duplicating networking/auth code onto w
 - [x] **4.4** `WatchProviderRow` (inline in `WatchDashboardView.swift`)
   - Provider icon + name + compact quota labels with colored percentages
 - [x] **4.5** Colors derived from existing `ProviderID.barColors` — no separate palette needed
-- [ ] **4.6** Support mock data for SwiftUI previews using `MockSnapshotCycle`
+- [x] **4.6** SwiftUI previews with Claude mock data (13% 5h, 37% 7d) for dashboard, row, and detail
 
 ## Phase 5: Watch complications
 

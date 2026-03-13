@@ -157,3 +157,17 @@ struct WatchProviderRow: View {
         return .red
     }
 }
+
+// MARK: - Previews
+
+#Preview("Dashboard") {
+    let manager = WatchSessionManager.shared
+    let _ = { manager.applyPreview(PreviewData.snapshot) }()
+    WatchDashboardView(sessionManager: manager)
+}
+
+#Preview("Provider Row") {
+    List {
+        WatchProviderRow(provider: PreviewData.claude)
+    }
+}
