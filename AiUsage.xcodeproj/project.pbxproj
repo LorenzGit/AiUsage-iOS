@@ -27,9 +27,9 @@
 		BB0001000000000000000A03 /* MockSnapshots.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C0CD71A2F31265A00B8A1C2 /* MockSnapshots.swift */; };
 		BB0001000000000000000A04 /* MockSnapshotsSecondary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C0CD71B2F31265A00B8A1C2 /* MockSnapshotsSecondary.swift */; };
 		BB0001000000000000000A05 /* ProviderAssets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7A9E4D3C1B2A4F6E9D8C7B10 /* ProviderAssets.xcassets */; };
-		F4183C482F64782E00DAD2EA /* AiUsageWatch.app in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = BB00010000000000000001 /* AiUsageWatch.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		F46E94002F64BB8400A9A2AA /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F46E93FF2F64BB8400A9A2AA /* SwiftUI.framework */; };
-		F46E94022F64BD2A00A9A2AA /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F46E94012F64BD2A00A9A2AA /* WidgetKit.framework */; };
+		F4183C482F64782E00DAD2EA /* AiUsageWatch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = BB00010000000000000001 /* AiUsageWatch.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		F46E94002F64BB8400A9A2AA /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C0CD6E42F31256C00B8A1C2 /* SwiftUI.framework */; };
+		F46E94022F64BD2A00A9A2AA /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C0CD6E22F31256C00B8A1C2 /* WidgetKit.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -63,10 +63,20 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				F4183C482F64782E00DAD2EA /* AiUsageWatch.app in Embed Foundation Extensions */,
 				2C0CD6F62F31256E00B8A1C2 /* AiUsageWidgetExtension.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F4183C492F64782E00DAD2EA /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 12;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
+			dstSubfolderSpec = 16;
+			files = (
+				F4183C482F64782E00DAD2EA /* AiUsageWatch.app in Embed Watch Content */,
+			);
+			name = "Embed Watch Content";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
@@ -84,8 +94,6 @@
 		7A9E4D3C1B2A4F6E9D8C7B10 /* ProviderAssets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = ProviderAssets.xcassets; sourceTree = "<group>"; };
 		AABB0001000000000000AA02 /* AiUsageTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AiUsageTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		BB00010000000000000001 /* AiUsageWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AiUsageWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		F46E93FF2F64BB8400A9A2AA /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = Platforms/WatchOS.platform/Developer/SDKs/WatchOS26.2.sdk/System/Library/Frameworks/SwiftUI.framework; sourceTree = DEVELOPER_DIR; };
-		F46E94012F64BD2A00A9A2AA /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = Platforms/WatchOS.platform/Developer/SDKs/WatchOS26.2.sdk/System/Library/Frameworks/WidgetKit.framework; sourceTree = DEVELOPER_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -187,8 +195,6 @@
 		2C0CD6E12F31256C00B8A1C2 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				F46E94012F64BD2A00A9A2AA /* WidgetKit.framework */,
-				F46E93FF2F64BB8400A9A2AA /* SwiftUI.framework */,
 				2C0CD6E22F31256C00B8A1C2 /* WidgetKit.framework */,
 				2C0CD6E42F31256C00B8A1C2 /* SwiftUI.framework */,
 			);
@@ -213,13 +219,14 @@
 /* Begin PBXNativeTarget section */
 		2C0CD6CD2F31229F00B8A1C2 /* AiUsage */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 2C0CD6D92F3122A000B8A1C2 /* Build configuration list for PBXNativeTarget "AiUsage" */;
-			buildPhases = (
-				2C0CD6CA2F31229F00B8A1C2 /* Sources */,
-				2C0CD6CB2F31229F00B8A1C2 /* Frameworks */,
-				2C0CD6CC2F31229F00B8A1C2 /* Resources */,
-				2C0CD6FB2F31256E00B8A1C2 /* Embed Foundation Extensions */,
-			);
+				buildConfigurationList = 2C0CD6D92F3122A000B8A1C2 /* Build configuration list for PBXNativeTarget "AiUsage" */;
+				buildPhases = (
+					2C0CD6CA2F31229F00B8A1C2 /* Sources */,
+					2C0CD6CB2F31229F00B8A1C2 /* Frameworks */,
+					2C0CD6CC2F31229F00B8A1C2 /* Resources */,
+					2C0CD6FB2F31256E00B8A1C2 /* Embed Foundation Extensions */,
+					F4183C492F64782E00DAD2EA /* Embed Watch Content */,
+				);
 			buildRules = (
 			);
 			dependencies = (
