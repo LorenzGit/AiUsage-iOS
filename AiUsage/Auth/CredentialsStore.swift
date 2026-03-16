@@ -2,8 +2,8 @@ import Foundation
 
 @MainActor
 final class CredentialsStore {
-    private let service = "aiusage.gamojo.com.credentials"
-    private let claudeAccountsService = "aiusage.gamojo.com.claude_accounts"
+    private let service = "io.vincentb.aiusage.credentials"
+    private let claudeAccountsService = "io.vincentb.aiusage.claude_accounts"
 
     func load(for provider: ProviderID) -> ProviderCredentials? {
         do {

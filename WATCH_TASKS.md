@@ -13,9 +13,9 @@ This keeps the Watch app thin and avoids duplicating networking/auth code onto w
 - [x] **1.1** Add a watchOS App target (`AiUsageWatch`) to the Xcode project
   - Product type: watchOS App (SwiftUI lifecycle, no storyboard)
   - Deployment target: watchOS 26.2 (matches iOS 26.2)
-  - Bundle ID: `aiusage.gamojo.com.watchkitapp`
-- [x] **1.2** Add the same App Group entitlement (`group.aiusage.gamojo.com`) — not strictly needed for Watch Connectivity but useful if sharing UserDefaults for provider order
-- [x] **1.3** Add the same `keychain-access-groups` entitlement (`$(AppIdentifierPrefix)aiusage.gamojo.com.shared`) for potential future credential sharing
+  - Bundle ID: `io.vincentb.aiusage.watchkitapp`
+- [x] **1.2** Add the same App Group entitlement (`group.io.vincentb.aiusage`) — not strictly needed for Watch Connectivity but useful if sharing UserDefaults for provider order
+- [x] **1.3** Add the same `keychain-access-groups` entitlement (`$(AppIdentifierPrefix)io.vincentb.aiusage.shared`) for potential future credential sharing
 - [x] **1.4** Add Shared sources to the Watch target's build:
   - `Shared/ProviderID.swift` (already uses `#if canImport` guards for UIKit)
   - `Shared/Snapshots.swift` (pure Codable, no platform deps)

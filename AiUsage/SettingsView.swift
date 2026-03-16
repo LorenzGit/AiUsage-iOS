@@ -2,6 +2,7 @@ import SwiftUI
 
 struct SettingsView: View {
     @ObservedObject var model: AppModel
+    @ObservedObject private var watchSession = WatchSessionManager.shared
     @Environment(\.dismiss) private var dismiss
     @Environment(\.openURL) private var openURL
 
@@ -30,6 +31,17 @@ struct SettingsView: View {
 
                     Button("Refresh All Providers") {
                         Task { await model.refreshAll() }
+                    }
+                }
+
+                Section("Apple Watch") {
+                    let status = watchSession.watchStatus
+                    Label(status.label, systemImage: status.systemImage)
+                        .foregroundStyle(status == .connected ? .green : .primary)
+                    if let hint = status.hint {
+                        Text(hint)
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
                     }
                 }
 
