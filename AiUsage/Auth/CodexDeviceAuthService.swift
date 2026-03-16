@@ -186,7 +186,7 @@ struct CodexDeviceAuthService: Sendable {
 
         for request in attempts {
             let (data, response) = try await URLSession.shared.data(for: request)
-            let http = try requireHTTP(response)
+            let http = try requireCodexAuthHTTP(response)
 
             // Some auth stacks only accept one body format.
             if http.statusCode == 405 || http.statusCode == 415 {
@@ -446,7 +446,7 @@ struct GeminiDeviceAuthService: Sendable {
         request.httpBody = formEncode(params).data(using: .utf8)
 
         let (data, response) = try await URLSession.shared.data(for: request)
-        let http = try requireGeminiHTTP(response)
+        let http = try requireGeminiAuthHTTP(response)
 
         guard (200...299).contains(http.statusCode) else {
             throw decodeOAuthError(from: data, fallback: "Token exchange failed (HTTP \(http.statusCode)).")
@@ -533,7 +533,7 @@ private struct GeminiOAuthTokenResponse: Decodable {
     }
 }
 
-private func requireGeminiHTTP(_ response: URLResponse) throws -> HTTPURLResponse {
+private func requireGeminiAuthHTTP(_ response: URLResponse) throws -> HTTPURLResponse {
     guard let http = response as? HTTPURLResponse else {
         throw GeminiDeviceAuthError.invalidResponse
     }
@@ -552,7 +552,7 @@ private struct OAuthTokenResponse: Decodable {
     }
 }
 
-private func requireHTTP(_ response: URLResponse) throws -> HTTPURLResponse {
+private func requireCodexAuthHTTP(_ response: URLResponse) throws -> HTTPURLResponse {
     guard let http = response as? HTTPURLResponse else {
         throw CodexDeviceAuthError.invalidResponse
     }

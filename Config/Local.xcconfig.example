@@ -1,0 +1,5 @@
+// Copy this file to Config/Local.xcconfig and set values for your Apple team
+// and a unique bundle identifier prefix before running on device.
+
+PRODUCT_BUNDLE_IDENTIFIER_PREFIX = io.yourname.aiusage
+DEVELOPMENT_TEAM_ID = ABC123XYZ9

@@ -4,7 +4,14 @@ public enum MockSnapshotCycle {
     private static let indexKey = "aiusage.mock_snapshot_cycle_index"
 
     public static func next(now: Date = Date()) -> WidgetSnapshot {
-        let defaults = UserDefaults(suiteName: WidgetSnapshotStore.appGroupID) ?? .standard
+        let suiteName: String? = {
+            #if os(watchOS)
+            return nil
+            #else
+            return WidgetSnapshotStore.appGroupID
+            #endif
+        }()
+        let defaults = suiteName.flatMap { UserDefaults(suiteName: $0) } ?? .standard
         let nextIndex = (defaults.integer(forKey: indexKey) + 1) % 2
         defaults.set(nextIndex, forKey: indexKey)
         return snapshot(at: nextIndex, now: now)

@@ -1,9 +1,18 @@
 import Foundation
+import Security
 
 public enum WidgetSnapshotStore {
-    public static let appGroupID = "group.aiusage.gamojo.com"
+    public static let appGroupID = configuredValue(
+        for: "AIUsageAppGroupIdentifier",
+        fallback: "group.io.vincentb.aiusage"
+    )
     private static let fileName = "widget-snapshot.json"
-    private static let refreshCredentialsFileName = "widget-refresh-credentials.json"
+    private static let sharedKeychainAccessGroup = configuredValue(
+        for: "AIUsageSharedKeychainAccessGroup",
+        fallback: "io.vincentb.aiusage.shared"
+    )
+    private static let credentialsKeychainService = "aiusage.widget.refresh-credentials"
+    private static let credentialsKeychainAccount = "all-providers"
 
     public static func save(_ snapshot: WidgetSnapshot) {
         guard let url = snapshotURL() else { return }
@@ -11,7 +20,7 @@ public enum WidgetSnapshotStore {
             let data = try encoder.encode(snapshot)
             try data.write(to: url, options: [.atomic])
         } catch {
-            // Keep MVP simple: fail silently.
+            // Snapshot is non-sensitive usage data; fail silently.
         }
     }
 
@@ -21,20 +30,48 @@ public enum WidgetSnapshotStore {
         return try? decoder.decode(WidgetSnapshot.self, from: data)
     }
 
+    /// Saves widget refresh credentials to the shared Keychain (not plaintext on disk).
     public static func saveRefreshCredentials(_ credentialsByProvider: [ProviderID: WidgetRefreshCredentials]) {
-        guard let url = refreshCredentialsURL() else { return }
         let payload = WidgetRefreshCredentialsPayload(credentialsByProvider: credentialsByProvider)
-        do {
-            let data = try encoder.encode(payload)
-            try data.write(to: url, options: [.atomic])
-        } catch {
-            // Keep MVP simple: fail silently.
-        }
+        guard let data = try? encoder.encode(payload) else { return }
+
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: credentialsKeychainService,
+            kSecAttrAccount as String: credentialsKeychainAccount,
+            kSecAttrAccessGroup as String: sharedKeychainAccessGroup,
+        ]
+
+        let attributes: [String: Any] = [
+            kSecValueData as String: data,
+            kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly,
+        ]
+
+        let updateStatus = SecItemUpdate(query as CFDictionary, attributes as CFDictionary)
+        if updateStatus == errSecSuccess { return }
+
+        guard updateStatus == errSecItemNotFound else { return }
+
+        var addQuery = query
+        addQuery[kSecValueData as String] = data
+        addQuery[kSecAttrAccessible as String] = kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
+        SecItemAdd(addQuery as CFDictionary, nil)
     }
 
+    /// Loads widget refresh credentials from the shared Keychain.
     public static func loadRefreshCredentials() -> [ProviderID: WidgetRefreshCredentials] {
-        guard let url = refreshCredentialsURL() else { return [:] }
-        guard let data = try? Data(contentsOf: url) else { return [:] }
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: credentialsKeychainService,
+            kSecAttrAccount as String: credentialsKeychainAccount,
+            kSecAttrAccessGroup as String: sharedKeychainAccessGroup,
+            kSecReturnData as String: true,
+            kSecMatchLimit as String: kSecMatchLimitOne,
+        ]
+
+        var result: CFTypeRef?
+        let status = SecItemCopyMatching(query as CFDictionary, &result)
+        guard status == errSecSuccess, let data = result as? Data else { return [:] }
         guard let payload = try? decoder.decode(WidgetRefreshCredentialsPayload.self, from: data) else { return [:] }
         return payload.credentialsByProvider
     }
@@ -48,15 +85,6 @@ public enum WidgetSnapshotStore {
         return container.appendingPathComponent(fileName)
     }
 
-    private static func refreshCredentialsURL() -> URL? {
-        guard let container = FileManager.default.containerURL(
-            forSecurityApplicationGroupIdentifier: appGroupID)
-        else {
-            return nil
-        }
-        return container.appendingPathComponent(refreshCredentialsFileName)
-    }
-
     private static var encoder: JSONEncoder {
         let encoder = JSONEncoder()
         encoder.dateEncodingStrategy = .iso8601
@@ -67,6 +95,16 @@ public enum WidgetSnapshotStore {
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
         return decoder
+    }
+
+    private static func configuredValue(for key: String, fallback: String) -> String {
+        guard
+            let value = Bundle.main.object(forInfoDictionaryKey: key) as? String,
+            !value.isEmpty
+        else {
+            return fallback
+        }
+        return value
     }
 }
 

@@ -22,6 +22,14 @@
 		2C0CD71D2F31265A00B8A1C2 /* MockSnapshotsSecondary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C0CD71B2F31265A00B8A1C2 /* MockSnapshotsSecondary.swift */; };
 		7A9E4D3C1B2A4F6E9D8C7B11 /* ProviderAssets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7A9E4D3C1B2A4F6E9D8C7B10 /* ProviderAssets.xcassets */; };
 		7A9E4D3C1B2A4F6E9D8C7B12 /* ProviderAssets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7A9E4D3C1B2A4F6E9D8C7B10 /* ProviderAssets.xcassets */; };
+		BB0001000000000000000A01 /* ProviderID.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C0CD70E2F31265A00B8A1C2 /* ProviderID.swift */; };
+		BB0001000000000000000A02 /* Snapshots.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C0CD70F2F31265A00B8A1C2 /* Snapshots.swift */; };
+		BB0001000000000000000A03 /* MockSnapshots.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C0CD71A2F31265A00B8A1C2 /* MockSnapshots.swift */; };
+		BB0001000000000000000A04 /* MockSnapshotsSecondary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C0CD71B2F31265A00B8A1C2 /* MockSnapshotsSecondary.swift */; };
+		BB0001000000000000000A05 /* ProviderAssets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7A9E4D3C1B2A4F6E9D8C7B10 /* ProviderAssets.xcassets */; };
+		F4183C482F64782E00DAD2EA /* AiUsageWatch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = BB00010000000000000001 /* AiUsageWatch.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		F46E94002F64BB8400A9A2AA /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C0CD6E42F31256C00B8A1C2 /* SwiftUI.framework */; };
+		F46E94022F64BD2A00A9A2AA /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C0CD6E22F31256C00B8A1C2 /* WidgetKit.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -32,18 +40,43 @@
 			remoteGlobalIDString = 2C0CD6DF2F31256C00B8A1C2;
 			remoteInfo = AiUsageWidgetExtension;
 		};
+		AABB0001000000000000AA01 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2C0CD6C62F31229F00B8A1C2 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 2C0CD6CD2F31229F00B8A1C2;
+			remoteInfo = AiUsage;
+		};
+		BB0001000000000000000B03 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2C0CD6C62F31229F00B8A1C2 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = BB00010000000000000002;
+			remoteInfo = AiUsageWatch;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
 		2C0CD6FB2F31256E00B8A1C2 /* Embed Foundation Extensions */ = {
 			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
+			buildActionMask = 12;
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
 				2C0CD6F62F31256E00B8A1C2 /* AiUsageWidgetExtension.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F4183C492F64782E00DAD2EA /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 12;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
+			dstSubfolderSpec = 16;
+			files = (
+				F4183C482F64782E00DAD2EA /* AiUsageWatch.app in Embed Watch Content */,
+			);
+			name = "Embed Watch Content";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
@@ -58,7 +91,11 @@
 		2C0CD7102F31265A00B8A1C2 /* WidgetSnapshotStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetSnapshotStore.swift; sourceTree = "<group>"; };
 		2C0CD71A2F31265A00B8A1C2 /* MockSnapshots.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockSnapshots.swift; sourceTree = "<group>"; };
 		2C0CD71B2F31265A00B8A1C2 /* MockSnapshotsSecondary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockSnapshotsSecondary.swift; sourceTree = "<group>"; };
-		7A9E4D3C1B2A4F6E9D8C7B10 /* ProviderAssets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = ProviderAssets.xcassets; sourceTree = "<group>"; };
+			7A9E4D3C1B2A4F6E9D8C7B10 /* ProviderAssets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = ProviderAssets.xcassets; sourceTree = "<group>"; };
+			AABB0001000000000000AA02 /* AiUsageTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AiUsageTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+			BB00010000000000000001 /* AiUsageWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AiUsageWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
+			F4C100000000000000000001 /* ProjectSettings.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = ProjectSettings.xcconfig; sourceTree = "<group>"; };
+			F4C100000000000000000002 /* Local.xcconfig.example */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Local.xcconfig.example; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -85,6 +122,16 @@
 			path = AiUsageWidget;
 			sourceTree = "<group>";
 		};
+		AABB0001000000000000AA03 /* AiUsageTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = AiUsageTests;
+			sourceTree = "<group>";
+		};
+		BB00010000000000000009 /* AiUsageWatch */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = AiUsageWatch;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -104,25 +151,46 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		AABB0001000000000000AA06 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BB00010000000000000004 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F46E94002F64BB8400A9A2AA /* SwiftUI.framework in Frameworks */,
+				F46E94022F64BD2A00A9A2AA /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		2C0CD6C52F31229E00B8A1C2 = {
-			isa = PBXGroup;
-			children = (
-				2C0CD6D02F31229F00B8A1C2 /* AiUsage */,
-				2C0CD6E62F31256C00B8A1C2 /* AiUsageWidget */,
-				2C0CD7112F31265A00B8A1C2 /* Shared */,
-				2C0CD6E12F31256C00B8A1C2 /* Frameworks */,
-				2C0CD6CF2F31229F00B8A1C2 /* Products */,
-			);
-			sourceTree = "<group>";
+			2C0CD6C52F31229E00B8A1C2 = {
+				isa = PBXGroup;
+				children = (
+					2C0CD6D02F31229F00B8A1C2 /* AiUsage */,
+					2C0CD6E62F31256C00B8A1C2 /* AiUsageWidget */,
+					BB00010000000000000009 /* AiUsageWatch */,
+					AABB0001000000000000AA03 /* AiUsageTests */,
+					F4C100000000000000000003 /* Config */,
+					2C0CD7112F31265A00B8A1C2 /* Shared */,
+					2C0CD6E12F31256C00B8A1C2 /* Frameworks */,
+					2C0CD6CF2F31229F00B8A1C2 /* Products */,
+				);
+				sourceTree = "<group>";
 		};
 		2C0CD6CF2F31229F00B8A1C2 /* Products */ = {
 			isa = PBXGroup;
 			children = (
 				2C0CD6CE2F31229F00B8A1C2 /* AiUsage.app */,
 				2C0CD6E02F31256C00B8A1C2 /* AiUsageWidgetExtension.appex */,
+				AABB0001000000000000AA02 /* AiUsageTests.xctest */,
+				BB00010000000000000001 /* AiUsageWatch.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -136,35 +204,46 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		2C0CD7112F31265A00B8A1C2 /* Shared */ = {
-			isa = PBXGroup;
-			children = (
-				2C0CD70E2F31265A00B8A1C2 /* ProviderID.swift */,
+			2C0CD7112F31265A00B8A1C2 /* Shared */ = {
+				isa = PBXGroup;
+				children = (
+					2C0CD70E2F31265A00B8A1C2 /* ProviderID.swift */,
 				2C0CD70F2F31265A00B8A1C2 /* Snapshots.swift */,
 				2C0CD7102F31265A00B8A1C2 /* WidgetSnapshotStore.swift */,
 				2C0CD71A2F31265A00B8A1C2 /* MockSnapshots.swift */,
 				2C0CD71B2F31265A00B8A1C2 /* MockSnapshotsSecondary.swift */,
 				7A9E4D3C1B2A4F6E9D8C7B10 /* ProviderAssets.xcassets */,
 			);
-			path = Shared;
-			sourceTree = "<group>";
-		};
+				path = Shared;
+				sourceTree = "<group>";
+			};
+			F4C100000000000000000003 /* Config */ = {
+				isa = PBXGroup;
+				children = (
+					F4C100000000000000000001 /* ProjectSettings.xcconfig */,
+					F4C100000000000000000002 /* Local.xcconfig.example */,
+				);
+				path = Config;
+				sourceTree = "<group>";
+			};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
 		2C0CD6CD2F31229F00B8A1C2 /* AiUsage */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 2C0CD6D92F3122A000B8A1C2 /* Build configuration list for PBXNativeTarget "AiUsage" */;
-			buildPhases = (
-				2C0CD6CA2F31229F00B8A1C2 /* Sources */,
-				2C0CD6CB2F31229F00B8A1C2 /* Frameworks */,
-				2C0CD6CC2F31229F00B8A1C2 /* Resources */,
-				2C0CD6FB2F31256E00B8A1C2 /* Embed Foundation Extensions */,
-			);
+				buildConfigurationList = 2C0CD6D92F3122A000B8A1C2 /* Build configuration list for PBXNativeTarget "AiUsage" */;
+				buildPhases = (
+					2C0CD6CA2F31229F00B8A1C2 /* Sources */,
+					2C0CD6CB2F31229F00B8A1C2 /* Frameworks */,
+					2C0CD6CC2F31229F00B8A1C2 /* Resources */,
+					2C0CD6FB2F31256E00B8A1C2 /* Embed Foundation Extensions */,
+					F4183C492F64782E00DAD2EA /* Embed Watch Content */,
+				);
 			buildRules = (
 			);
 			dependencies = (
 				2C0CD6F52F31256E00B8A1C2 /* PBXTargetDependency */,
+				BB0001000000000000000B04 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				2C0CD6D02F31229F00B8A1C2 /* AiUsage */,
@@ -198,6 +277,51 @@
 			productReference = 2C0CD6E02F31256C00B8A1C2 /* AiUsageWidgetExtension.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
+		AABB0001000000000000AA04 /* AiUsageTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AABB0001000000000000AA0B /* Build configuration list for PBXNativeTarget "AiUsageTests" */;
+			buildPhases = (
+				AABB0001000000000000AA05 /* Sources */,
+				AABB0001000000000000AA06 /* Frameworks */,
+				AABB0001000000000000AA07 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				AABB0001000000000000AA08 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				AABB0001000000000000AA03 /* AiUsageTests */,
+			);
+			name = AiUsageTests;
+			packageProductDependencies = (
+			);
+			productName = AiUsageTests;
+			productReference = AABB0001000000000000AA02 /* AiUsageTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		BB00010000000000000002 /* AiUsageWatch */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BB00010000000000000008 /* Build configuration list for PBXNativeTarget "AiUsageWatch" */;
+			buildPhases = (
+				BB00010000000000000003 /* Sources */,
+				BB00010000000000000004 /* Frameworks */,
+				BB00010000000000000005 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				BB00010000000000000009 /* AiUsageWatch */,
+			);
+			name = AiUsageWatch;
+			packageProductDependencies = (
+			);
+			productName = AiUsageWatch;
+			productReference = BB00010000000000000001 /* AiUsageWatch.app */;
+			productType = "com.apple.product-type.application";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -212,6 +336,13 @@
 						CreatedOnToolsVersion = 26.2;
 					};
 					2C0CD6DF2F31256C00B8A1C2 = {
+						CreatedOnToolsVersion = 26.2;
+					};
+					AABB0001000000000000AA04 = {
+						CreatedOnToolsVersion = 26.2;
+						TestTargetID = 2C0CD6CD2F31229F00B8A1C2;
+					};
+					BB00010000000000000002 = {
 						CreatedOnToolsVersion = 26.2;
 					};
 				};
@@ -232,6 +363,8 @@
 			targets = (
 				2C0CD6CD2F31229F00B8A1C2 /* AiUsage */,
 				2C0CD6DF2F31256C00B8A1C2 /* AiUsageWidgetExtension */,
+				BB00010000000000000002 /* AiUsageWatch */,
+				AABB0001000000000000AA04 /* AiUsageTests */,
 			);
 		};
 /* End PBXProject section */
@@ -250,6 +383,21 @@
 			buildActionMask = 2147483647;
 			files = (
 				7A9E4D3C1B2A4F6E9D8C7B12 /* ProviderAssets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AABB0001000000000000AA07 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BB00010000000000000005 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BB0001000000000000000A05 /* ProviderAssets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -280,6 +428,24 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		AABB0001000000000000AA05 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BB00010000000000000003 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BB0001000000000000000A01 /* ProviderID.swift in Sources */,
+				BB0001000000000000000A02 /* Snapshots.swift in Sources */,
+				BB0001000000000000000A03 /* MockSnapshots.swift in Sources */,
+				BB0001000000000000000A04 /* MockSnapshotsSecondary.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -288,12 +454,23 @@
 			target = 2C0CD6DF2F31256C00B8A1C2 /* AiUsageWidgetExtension */;
 			targetProxy = 2C0CD6F42F31256E00B8A1C2 /* PBXContainerItemProxy */;
 		};
+		AABB0001000000000000AA08 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 2C0CD6CD2F31229F00B8A1C2 /* AiUsage */;
+			targetProxy = AABB0001000000000000AA01 /* PBXContainerItemProxy */;
+		};
+		BB0001000000000000000B04 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = BB00010000000000000002 /* AiUsageWatch */;
+			targetProxy = BB0001000000000000000B03 /* PBXContainerItemProxy */;
+		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
-		2C0CD6D72F3122A000B8A1C2 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
+			2C0CD6D72F3122A000B8A1C2 /* Debug */ = {
+				isa = XCBuildConfiguration;
+				baseConfigurationReference = F4C100000000000000000001 /* ProjectSettings.xcconfig */;
+				buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -325,8 +502,9 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = 2X3CGM3BPT;
+					DEVELOPMENT_TEAM = "$(DEVELOPMENT_TEAM_ID)";
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -346,18 +524,21 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				TARGETED_DEVICE_FAMILY = "1,4";
 			};
 			name = Debug;
 		};
-		2C0CD6D82F3122A000B8A1C2 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
+			2C0CD6D82F3122A000B8A1C2 /* Release */ = {
+				isa = XCBuildConfiguration;
+				baseConfigurationReference = F4C100000000000000000001 /* ProjectSettings.xcconfig */;
+				buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -389,8 +570,9 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = 2X3CGM3BPT;
+					DEVELOPMENT_TEAM = "$(DEVELOPMENT_TEAM_ID)";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -404,10 +586,12 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
+				TARGETED_DEVICE_FAMILY = "1,4";
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
@@ -419,14 +603,17 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Config/AiUsage.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 2X3CGM3BPT;
-				ENABLE_PREVIEWS = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = AiUsage/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "AI Usage";
-				INFOPLIST_KEY_CFBundleURLTypes = "({CFBundleTypeRole=Editor;CFBundleURLName=aiusage.oauth;CFBundleURLSchemes=(aiusage);})";
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
+					DEVELOPMENT_TEAM = "$(DEVELOPMENT_TEAM_ID)";
+					ENABLE_PREVIEWS = YES;
+					GENERATE_INFOPLIST_FILE = YES;
+					INFOPLIST_KEY_AIUsageClaudeAccountsService = "$(APP_BUNDLE_IDENTIFIER).claude_accounts";
+					INFOPLIST_KEY_AIUsageCredentialsService = "$(APP_BUNDLE_IDENTIFIER).credentials";
+					INFOPLIST_FILE = AiUsage/Info.plist;
+					INFOPLIST_KEY_AIUsageAppGroupIdentifier = "$(APP_GROUP_IDENTIFIER)";
+					INFOPLIST_KEY_CFBundleDisplayName = "AI Usage";
+					INFOPLIST_KEY_CFBundleURLTypes = "({CFBundleTypeRole=Editor;CFBundleURLName=aiusage.oauth;CFBundleURLSchemes=(aiusage);})";
+					INFOPLIST_KEY_AIUsageSharedKeychainAccessGroup = "$(SHARED_KEYCHAIN_ACCESS_GROUP)";
+					INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -436,8 +623,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = aiusage.gamojo.com;
+					PRODUCT_BUNDLE_IDENTIFIER = "$(APP_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -456,14 +642,17 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Config/AiUsage.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 2X3CGM3BPT;
-				ENABLE_PREVIEWS = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = AiUsage/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "AI Usage";
-				INFOPLIST_KEY_CFBundleURLTypes = "({CFBundleTypeRole=Editor;CFBundleURLName=aiusage.oauth;CFBundleURLSchemes=(aiusage);})";
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
+					DEVELOPMENT_TEAM = "$(DEVELOPMENT_TEAM_ID)";
+					ENABLE_PREVIEWS = YES;
+					GENERATE_INFOPLIST_FILE = YES;
+					INFOPLIST_KEY_AIUsageClaudeAccountsService = "$(APP_BUNDLE_IDENTIFIER).claude_accounts";
+					INFOPLIST_KEY_AIUsageCredentialsService = "$(APP_BUNDLE_IDENTIFIER).credentials";
+					INFOPLIST_FILE = AiUsage/Info.plist;
+					INFOPLIST_KEY_AIUsageAppGroupIdentifier = "$(APP_GROUP_IDENTIFIER)";
+					INFOPLIST_KEY_CFBundleDisplayName = "AI Usage";
+					INFOPLIST_KEY_CFBundleURLTypes = "({CFBundleTypeRole=Editor;CFBundleURLName=aiusage.oauth;CFBundleURLSchemes=(aiusage);})";
+					INFOPLIST_KEY_AIUsageSharedKeychainAccessGroup = "$(SHARED_KEYCHAIN_ACCESS_GROUP)";
+					INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -473,8 +662,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = aiusage.gamojo.com;
+					PRODUCT_BUNDLE_IDENTIFIER = "$(APP_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -493,19 +681,19 @@
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CODE_SIGN_ENTITLEMENTS = Config/AiUsageWidget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 2X3CGM3BPT;
-				GENERATE_INFOPLIST_FILE = NO;
-				INFOPLIST_FILE = "Config/AiUsageWidget-Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = AiUsageWidget;
+					DEVELOPMENT_TEAM = "$(DEVELOPMENT_TEAM_ID)";
+					GENERATE_INFOPLIST_FILE = NO;
+					INFOPLIST_FILE = "Config/AiUsageWidget-Info.plist";
+					INFOPLIST_KEY_AIUsageAppGroupIdentifier = "$(APP_GROUP_IDENTIFIER)";
+					INFOPLIST_KEY_AIUsageSharedKeychainAccessGroup = "$(SHARED_KEYCHAIN_ACCESS_GROUP)";
+					INFOPLIST_KEY_CFBundleDisplayName = AiUsageWidget;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = aiusage.gamojo.com.AiUsageWidgetExtension;
+					PRODUCT_BUNDLE_IDENTIFIER = "$(WIDGET_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -524,19 +712,19 @@
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CODE_SIGN_ENTITLEMENTS = Config/AiUsageWidget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 2X3CGM3BPT;
-				GENERATE_INFOPLIST_FILE = NO;
-				INFOPLIST_FILE = "Config/AiUsageWidget-Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = AiUsageWidget;
+					DEVELOPMENT_TEAM = "$(DEVELOPMENT_TEAM_ID)";
+					GENERATE_INFOPLIST_FILE = NO;
+					INFOPLIST_FILE = "Config/AiUsageWidget-Info.plist";
+					INFOPLIST_KEY_AIUsageAppGroupIdentifier = "$(APP_GROUP_IDENTIFIER)";
+					INFOPLIST_KEY_AIUsageSharedKeychainAccessGroup = "$(SHARED_KEYCHAIN_ACCESS_GROUP)";
+					INFOPLIST_KEY_CFBundleDisplayName = AiUsageWidget;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = aiusage.gamojo.com.AiUsageWidgetExtension;
+					PRODUCT_BUNDLE_IDENTIFIER = "$(WIDGET_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -545,6 +733,112 @@
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		AABB0001000000000000AA09 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+					DEVELOPMENT_TEAM = "$(DEVELOPMENT_TEAM_ID)";
+					GENERATE_INFOPLIST_FILE = YES;
+					PRODUCT_BUNDLE_IDENTIFIER = "$(TEST_BUNDLE_IDENTIFIER)";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/AiUsage.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/AiUsage";
+			};
+			name = Debug;
+		};
+		AABB0001000000000000AA0A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+					DEVELOPMENT_TEAM = "$(DEVELOPMENT_TEAM_ID)";
+					GENERATE_INFOPLIST_FILE = YES;
+					PRODUCT_BUNDLE_IDENTIFIER = "$(TEST_BUNDLE_IDENTIFIER)";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/AiUsage.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/AiUsage";
+			};
+			name = Release;
+		};
+		BB00010000000000000006 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Config/AiUsageWatch.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+					DEVELOPMENT_TEAM = "$(DEVELOPMENT_TEAM_ID)";
+					ENABLE_PREVIEWS = YES;
+					GENERATE_INFOPLIST_FILE = YES;
+					INFOPLIST_KEY_AIUsageAppGroupIdentifier = "$(APP_GROUP_IDENTIFIER)";
+					INFOPLIST_KEY_AIUsageSharedKeychainAccessGroup = "$(SHARED_KEYCHAIN_ACCESS_GROUP)";
+					INFOPLIST_KEY_CFBundleDisplayName = "AI Usage";
+					INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+					INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+					INFOPLIST_KEY_WKCompanionAppBundleIdentifier = "$(APP_BUNDLE_IDENTIFIER)";
+					INFOPLIST_KEY_WKRunsIndependentlyOfCompanionApp = NO;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+					PRODUCT_BUNDLE_IDENTIFIER = "$(WATCH_BUNDLE_IDENTIFIER)";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 26.2;
+			};
+			name = Debug;
+		};
+		BB00010000000000000007 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Config/AiUsageWatch.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+					DEVELOPMENT_TEAM = "$(DEVELOPMENT_TEAM_ID)";
+					ENABLE_PREVIEWS = YES;
+					GENERATE_INFOPLIST_FILE = YES;
+					INFOPLIST_KEY_AIUsageAppGroupIdentifier = "$(APP_GROUP_IDENTIFIER)";
+					INFOPLIST_KEY_AIUsageSharedKeychainAccessGroup = "$(SHARED_KEYCHAIN_ACCESS_GROUP)";
+					INFOPLIST_KEY_CFBundleDisplayName = "AI Usage";
+					INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+					INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+					INFOPLIST_KEY_WKCompanionAppBundleIdentifier = "$(APP_BUNDLE_IDENTIFIER)";
+					INFOPLIST_KEY_WKRunsIndependentlyOfCompanionApp = NO;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+					PRODUCT_BUNDLE_IDENTIFIER = "$(WATCH_BUNDLE_IDENTIFIER)";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 26.2;
 			};
 			name = Release;
 		};
@@ -574,6 +868,24 @@
 			buildConfigurations = (
 				2C0CD6F92F31256E00B8A1C2 /* Debug */,
 				2C0CD6FA2F31256E00B8A1C2 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		AABB0001000000000000AA0B /* Build configuration list for PBXNativeTarget "AiUsageTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AABB0001000000000000AA09 /* Debug */,
+				AABB0001000000000000AA0A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		BB00010000000000000008 /* Build configuration list for PBXNativeTarget "AiUsageWatch" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BB00010000000000000006 /* Debug */,
+				BB00010000000000000007 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
