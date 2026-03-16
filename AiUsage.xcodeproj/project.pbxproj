@@ -91,9 +91,11 @@
 		2C0CD7102F31265A00B8A1C2 /* WidgetSnapshotStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetSnapshotStore.swift; sourceTree = "<group>"; };
 		2C0CD71A2F31265A00B8A1C2 /* MockSnapshots.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockSnapshots.swift; sourceTree = "<group>"; };
 		2C0CD71B2F31265A00B8A1C2 /* MockSnapshotsSecondary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockSnapshotsSecondary.swift; sourceTree = "<group>"; };
-		7A9E4D3C1B2A4F6E9D8C7B10 /* ProviderAssets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = ProviderAssets.xcassets; sourceTree = "<group>"; };
-		AABB0001000000000000AA02 /* AiUsageTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AiUsageTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		BB00010000000000000001 /* AiUsageWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AiUsageWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
+			7A9E4D3C1B2A4F6E9D8C7B10 /* ProviderAssets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = ProviderAssets.xcassets; sourceTree = "<group>"; };
+			AABB0001000000000000AA02 /* AiUsageTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AiUsageTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+			BB00010000000000000001 /* AiUsageWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AiUsageWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
+			F4C100000000000000000001 /* ProjectSettings.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = ProjectSettings.xcconfig; sourceTree = "<group>"; };
+			F4C100000000000000000002 /* Local.xcconfig.example */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Local.xcconfig.example; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -168,18 +170,19 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		2C0CD6C52F31229E00B8A1C2 = {
-			isa = PBXGroup;
-			children = (
-				2C0CD6D02F31229F00B8A1C2 /* AiUsage */,
-				2C0CD6E62F31256C00B8A1C2 /* AiUsageWidget */,
-				BB00010000000000000009 /* AiUsageWatch */,
-				AABB0001000000000000AA03 /* AiUsageTests */,
-				2C0CD7112F31265A00B8A1C2 /* Shared */,
-				2C0CD6E12F31256C00B8A1C2 /* Frameworks */,
-				2C0CD6CF2F31229F00B8A1C2 /* Products */,
-			);
-			sourceTree = "<group>";
+			2C0CD6C52F31229E00B8A1C2 = {
+				isa = PBXGroup;
+				children = (
+					2C0CD6D02F31229F00B8A1C2 /* AiUsage */,
+					2C0CD6E62F31256C00B8A1C2 /* AiUsageWidget */,
+					BB00010000000000000009 /* AiUsageWatch */,
+					AABB0001000000000000AA03 /* AiUsageTests */,
+					F4C100000000000000000003 /* Config */,
+					2C0CD7112F31265A00B8A1C2 /* Shared */,
+					2C0CD6E12F31256C00B8A1C2 /* Frameworks */,
+					2C0CD6CF2F31229F00B8A1C2 /* Products */,
+				);
+				sourceTree = "<group>";
 		};
 		2C0CD6CF2F31229F00B8A1C2 /* Products */ = {
 			isa = PBXGroup;
@@ -201,19 +204,28 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		2C0CD7112F31265A00B8A1C2 /* Shared */ = {
-			isa = PBXGroup;
-			children = (
-				2C0CD70E2F31265A00B8A1C2 /* ProviderID.swift */,
+			2C0CD7112F31265A00B8A1C2 /* Shared */ = {
+				isa = PBXGroup;
+				children = (
+					2C0CD70E2F31265A00B8A1C2 /* ProviderID.swift */,
 				2C0CD70F2F31265A00B8A1C2 /* Snapshots.swift */,
 				2C0CD7102F31265A00B8A1C2 /* WidgetSnapshotStore.swift */,
 				2C0CD71A2F31265A00B8A1C2 /* MockSnapshots.swift */,
 				2C0CD71B2F31265A00B8A1C2 /* MockSnapshotsSecondary.swift */,
 				7A9E4D3C1B2A4F6E9D8C7B10 /* ProviderAssets.xcassets */,
 			);
-			path = Shared;
-			sourceTree = "<group>";
-		};
+				path = Shared;
+				sourceTree = "<group>";
+			};
+			F4C100000000000000000003 /* Config */ = {
+				isa = PBXGroup;
+				children = (
+					F4C100000000000000000001 /* ProjectSettings.xcconfig */,
+					F4C100000000000000000002 /* Local.xcconfig.example */,
+				);
+				path = Config;
+				sourceTree = "<group>";
+			};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -455,9 +467,10 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
-		2C0CD6D72F3122A000B8A1C2 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
+			2C0CD6D72F3122A000B8A1C2 /* Debug */ = {
+				isa = XCBuildConfiguration;
+				baseConfigurationReference = F4C100000000000000000001 /* ProjectSettings.xcconfig */;
+				buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -491,7 +504,7 @@
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = 2X3CGM3BPT;
+					DEVELOPMENT_TEAM = "$(DEVELOPMENT_TEAM_ID)";
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -522,9 +535,10 @@
 			};
 			name = Debug;
 		};
-		2C0CD6D82F3122A000B8A1C2 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
+			2C0CD6D82F3122A000B8A1C2 /* Release */ = {
+				isa = XCBuildConfiguration;
+				baseConfigurationReference = F4C100000000000000000001 /* ProjectSettings.xcconfig */;
+				buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -558,7 +572,7 @@
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = 2X3CGM3BPT;
+					DEVELOPMENT_TEAM = "$(DEVELOPMENT_TEAM_ID)";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -589,13 +603,17 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Config/AiUsage.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = HFFHH9CJYF;
-				ENABLE_PREVIEWS = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = AiUsage/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "AI Usage";
-				INFOPLIST_KEY_CFBundleURLTypes = "({CFBundleTypeRole=Editor;CFBundleURLName=aiusage.oauth;CFBundleURLSchemes=(aiusage);})";
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
+					DEVELOPMENT_TEAM = "$(DEVELOPMENT_TEAM_ID)";
+					ENABLE_PREVIEWS = YES;
+					GENERATE_INFOPLIST_FILE = YES;
+					INFOPLIST_KEY_AIUsageClaudeAccountsService = "$(APP_BUNDLE_IDENTIFIER).claude_accounts";
+					INFOPLIST_KEY_AIUsageCredentialsService = "$(APP_BUNDLE_IDENTIFIER).credentials";
+					INFOPLIST_FILE = AiUsage/Info.plist;
+					INFOPLIST_KEY_AIUsageAppGroupIdentifier = "$(APP_GROUP_IDENTIFIER)";
+					INFOPLIST_KEY_CFBundleDisplayName = "AI Usage";
+					INFOPLIST_KEY_CFBundleURLTypes = "({CFBundleTypeRole=Editor;CFBundleURLName=aiusage.oauth;CFBundleURLSchemes=(aiusage);})";
+					INFOPLIST_KEY_AIUsageSharedKeychainAccessGroup = "$(SHARED_KEYCHAIN_ACCESS_GROUP)";
+					INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -605,7 +623,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = io.vincentb.aiusage;
+					PRODUCT_BUNDLE_IDENTIFIER = "$(APP_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -624,13 +642,17 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Config/AiUsage.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = HFFHH9CJYF;
-				ENABLE_PREVIEWS = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = AiUsage/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "AI Usage";
-				INFOPLIST_KEY_CFBundleURLTypes = "({CFBundleTypeRole=Editor;CFBundleURLName=aiusage.oauth;CFBundleURLSchemes=(aiusage);})";
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
+					DEVELOPMENT_TEAM = "$(DEVELOPMENT_TEAM_ID)";
+					ENABLE_PREVIEWS = YES;
+					GENERATE_INFOPLIST_FILE = YES;
+					INFOPLIST_KEY_AIUsageClaudeAccountsService = "$(APP_BUNDLE_IDENTIFIER).claude_accounts";
+					INFOPLIST_KEY_AIUsageCredentialsService = "$(APP_BUNDLE_IDENTIFIER).credentials";
+					INFOPLIST_FILE = AiUsage/Info.plist;
+					INFOPLIST_KEY_AIUsageAppGroupIdentifier = "$(APP_GROUP_IDENTIFIER)";
+					INFOPLIST_KEY_CFBundleDisplayName = "AI Usage";
+					INFOPLIST_KEY_CFBundleURLTypes = "({CFBundleTypeRole=Editor;CFBundleURLName=aiusage.oauth;CFBundleURLSchemes=(aiusage);})";
+					INFOPLIST_KEY_AIUsageSharedKeychainAccessGroup = "$(SHARED_KEYCHAIN_ACCESS_GROUP)";
+					INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -640,7 +662,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = io.vincentb.aiusage;
+					PRODUCT_BUNDLE_IDENTIFIER = "$(APP_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -659,17 +681,19 @@
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CODE_SIGN_ENTITLEMENTS = Config/AiUsageWidget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = HFFHH9CJYF;
-				GENERATE_INFOPLIST_FILE = NO;
-				INFOPLIST_FILE = "Config/AiUsageWidget-Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = AiUsageWidget;
+					DEVELOPMENT_TEAM = "$(DEVELOPMENT_TEAM_ID)";
+					GENERATE_INFOPLIST_FILE = NO;
+					INFOPLIST_FILE = "Config/AiUsageWidget-Info.plist";
+					INFOPLIST_KEY_AIUsageAppGroupIdentifier = "$(APP_GROUP_IDENTIFIER)";
+					INFOPLIST_KEY_AIUsageSharedKeychainAccessGroup = "$(SHARED_KEYCHAIN_ACCESS_GROUP)";
+					INFOPLIST_KEY_CFBundleDisplayName = AiUsageWidget;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = io.vincentb.aiusage.AiUsageWidgetExtension;
+					PRODUCT_BUNDLE_IDENTIFIER = "$(WIDGET_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -688,17 +712,19 @@
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CODE_SIGN_ENTITLEMENTS = Config/AiUsageWidget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = HFFHH9CJYF;
-				GENERATE_INFOPLIST_FILE = NO;
-				INFOPLIST_FILE = "Config/AiUsageWidget-Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = AiUsageWidget;
+					DEVELOPMENT_TEAM = "$(DEVELOPMENT_TEAM_ID)";
+					GENERATE_INFOPLIST_FILE = NO;
+					INFOPLIST_FILE = "Config/AiUsageWidget-Info.plist";
+					INFOPLIST_KEY_AIUsageAppGroupIdentifier = "$(APP_GROUP_IDENTIFIER)";
+					INFOPLIST_KEY_AIUsageSharedKeychainAccessGroup = "$(SHARED_KEYCHAIN_ACCESS_GROUP)";
+					INFOPLIST_KEY_CFBundleDisplayName = AiUsageWidget;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = io.vincentb.aiusage.AiUsageWidgetExtension;
+					PRODUCT_BUNDLE_IDENTIFIER = "$(WIDGET_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -715,9 +741,9 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 2X3CGM3BPT;
-				GENERATE_INFOPLIST_FILE = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = io.vincentb.aiusage.AiUsageTests;
+					DEVELOPMENT_TEAM = "$(DEVELOPMENT_TEAM_ID)";
+					GENERATE_INFOPLIST_FILE = YES;
+					PRODUCT_BUNDLE_IDENTIFIER = "$(TEST_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
@@ -734,9 +760,9 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 2X3CGM3BPT;
-				GENERATE_INFOPLIST_FILE = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = io.vincentb.aiusage.AiUsageTests;
+					DEVELOPMENT_TEAM = "$(DEVELOPMENT_TEAM_ID)";
+					GENERATE_INFOPLIST_FILE = YES;
+					PRODUCT_BUNDLE_IDENTIFIER = "$(TEST_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
@@ -754,19 +780,21 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = Config/AiUsageWatch.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = HFFHH9CJYF;
-				ENABLE_PREVIEWS = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = "AI Usage";
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = io.vincentb.aiusage;
-				INFOPLIST_KEY_WKRunsIndependentlyOfCompanionApp = NO;
+					DEVELOPMENT_TEAM = "$(DEVELOPMENT_TEAM_ID)";
+					ENABLE_PREVIEWS = YES;
+					GENERATE_INFOPLIST_FILE = YES;
+					INFOPLIST_KEY_AIUsageAppGroupIdentifier = "$(APP_GROUP_IDENTIFIER)";
+					INFOPLIST_KEY_AIUsageSharedKeychainAccessGroup = "$(SHARED_KEYCHAIN_ACCESS_GROUP)";
+					INFOPLIST_KEY_CFBundleDisplayName = "AI Usage";
+					INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+					INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+					INFOPLIST_KEY_WKCompanionAppBundleIdentifier = "$(APP_BUNDLE_IDENTIFIER)";
+					INFOPLIST_KEY_WKRunsIndependentlyOfCompanionApp = NO;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = io.vincentb.aiusage.watchkitapp;
+					PRODUCT_BUNDLE_IDENTIFIER = "$(WATCH_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
 				SKIP_INSTALL = NO;
@@ -786,19 +814,21 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = Config/AiUsageWatch.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = HFFHH9CJYF;
-				ENABLE_PREVIEWS = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = "AI Usage";
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = io.vincentb.aiusage;
-				INFOPLIST_KEY_WKRunsIndependentlyOfCompanionApp = NO;
+					DEVELOPMENT_TEAM = "$(DEVELOPMENT_TEAM_ID)";
+					ENABLE_PREVIEWS = YES;
+					GENERATE_INFOPLIST_FILE = YES;
+					INFOPLIST_KEY_AIUsageAppGroupIdentifier = "$(APP_GROUP_IDENTIFIER)";
+					INFOPLIST_KEY_AIUsageSharedKeychainAccessGroup = "$(SHARED_KEYCHAIN_ACCESS_GROUP)";
+					INFOPLIST_KEY_CFBundleDisplayName = "AI Usage";
+					INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+					INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+					INFOPLIST_KEY_WKCompanionAppBundleIdentifier = "$(APP_BUNDLE_IDENTIFIER)";
+					INFOPLIST_KEY_WKRunsIndependentlyOfCompanionApp = NO;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = io.vincentb.aiusage.watchkitapp;
+					PRODUCT_BUNDLE_IDENTIFIER = "$(WATCH_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
 				SKIP_INSTALL = NO;

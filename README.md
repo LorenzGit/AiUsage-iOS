@@ -26,15 +26,15 @@ Track AI usage quotas from your iPhone, with an optional home-screen widget.
 
 1. Clone this repo and open `AiUsage.xcodeproj`.
 2. Plug in your iPhone (or use wireless debugging), then select it as the run destination.
-3. In **Targets**, open both `AiUsage` and `AiUsageWidgetExtension`:
-   - **Signing & Capabilities** → set your **Team**
+3. Copy `Config/Local.xcconfig.example` to `Config/Local.xcconfig`.
+4. In `Config/Local.xcconfig`, set:
+   - `PRODUCT_BUNDLE_IDENTIFIER_PREFIX` to a unique reverse-DNS prefix for your app
+   - `DEVELOPMENT_TEAM_ID` to your Apple Developer team ID for device builds
+5. In **Targets**, open `AiUsage`, `AiUsageWidgetExtension`, and `AiUsageWatch`:
+   - **Signing & Capabilities** → confirm your **Team**
    - keep **Automatically manage signing** enabled
-4. If signing fails, make IDs unique to your team:
-   - bundle IDs for both targets
-   - `Config/AiUsageWidget-Info.plist` (`WKAppBundleIdentifier`)
-   - App Group in `Config/AiUsage.entitlements`, `Config/AiUsageWidget.entitlements`, and `Shared/WidgetSnapshotStore.swift`
-5. On first device run, enable Developer Mode on iPhone if prompted.
-6. Press **Run** (`Cmd+R`). Xcode installs directly to your phone.
+6. On first device run, enable Developer Mode on iPhone if prompted.
+7. Press **Run** (`Cmd+R`). Xcode installs directly to your phone.
 
 ## Use the app
 

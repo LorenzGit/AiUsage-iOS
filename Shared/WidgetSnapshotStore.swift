@@ -2,9 +2,15 @@ import Foundation
 import Security
 
 public enum WidgetSnapshotStore {
-    public static let appGroupID = "group.io.vincentb.aiusage"
+    public static let appGroupID = configuredValue(
+        for: "AIUsageAppGroupIdentifier",
+        fallback: "group.io.vincentb.aiusage"
+    )
     private static let fileName = "widget-snapshot.json"
-    private static let sharedKeychainAccessGroup = "io.vincentb.aiusage.shared"
+    private static let sharedKeychainAccessGroup = configuredValue(
+        for: "AIUsageSharedKeychainAccessGroup",
+        fallback: "io.vincentb.aiusage.shared"
+    )
     private static let credentialsKeychainService = "aiusage.widget.refresh-credentials"
     private static let credentialsKeychainAccount = "all-providers"
 
@@ -89,6 +95,16 @@ public enum WidgetSnapshotStore {
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
         return decoder
+    }
+
+    private static func configuredValue(for key: String, fallback: String) -> String {
+        guard
+            let value = Bundle.main.object(forInfoDictionaryKey: key) as? String,
+            !value.isEmpty
+        else {
+            return fallback
+        }
+        return value
     }
 }
 

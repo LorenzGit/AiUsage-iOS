@@ -2,8 +2,14 @@ import Foundation
 
 @MainActor
 final class CredentialsStore {
-    private let service = "io.vincentb.aiusage.credentials"
-    private let claudeAccountsService = "io.vincentb.aiusage.claude_accounts"
+    private let service = CredentialsStore.configuredValue(
+        for: "AIUsageCredentialsService",
+        fallback: "io.vincentb.aiusage.credentials"
+    )
+    private let claudeAccountsService = CredentialsStore.configuredValue(
+        for: "AIUsageClaudeAccountsService",
+        fallback: "io.vincentb.aiusage.claude_accounts"
+    )
 
     func load(for provider: ProviderID) -> ProviderCredentials? {
         do {
@@ -41,6 +47,16 @@ final class CredentialsStore {
     func saveClaudeAccounts(_ accounts: [LabeledCredentials]) throws {
         let data = try JSONEncoder().encode(accounts)
         try KeychainStore.save(data: data, service: claudeAccountsService, account: "accounts")
+    }
+
+    private static func configuredValue(for key: String, fallback: String) -> String {
+        guard
+            let value = Bundle.main.object(forInfoDictionaryKey: key) as? String,
+            !value.isEmpty
+        else {
+            return fallback
+        }
+        return value
     }
 }
 

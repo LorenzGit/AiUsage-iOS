@@ -33,6 +33,7 @@ fastlane/test_output
 
 # Secrets
 *.env
+Config/Local.xcconfig
 
 # AI
 .claude/
