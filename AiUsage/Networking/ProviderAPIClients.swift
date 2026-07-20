@@ -1104,13 +1104,18 @@ struct KimiAPIClient: ProviderAPIClient {
             throw ProviderFetchError.notSupported(message: "Kimi returned no FEATURE_CODING usage.")
         }
 
-        let weeklyRemaining = parseRemainingPercent(limit: usage.detail.limit, remaining: usage.detail.remaining)
+        let weeklyRemaining = parseRemainingPercent(
+            limit: usage.detail.limit,
+            remaining: usage.detail.remaining,
+            used: usage.detail.used
+        )
         let weeklyUsed = weeklyRemaining.map { 100 - $0 }
 
         let sessionDetail = usage.limits?.first?.detail
         let sessionRemaining = parseRemainingPercent(
             limit: sessionDetail?.limit ?? "",
-            remaining: sessionDetail?.remaining
+            remaining: sessionDetail?.remaining,
+            used: sessionDetail?.used
         )
         let sessionUsed = sessionRemaining.map { 100 - $0 }
 
@@ -1127,10 +1132,13 @@ struct KimiAPIClient: ProviderAPIClient {
         )
     }
 
-    private func parseRemainingPercent(limit: String, remaining: String?) -> Double? {
+    private func parseRemainingPercent(limit: String, remaining: String?, used: String?) -> Double? {
         guard let limitValue = Double(limit), limitValue > 0 else { return nil }
-        guard let remaining, let remainingValue = Double(remaining) else { return nil }
-        return (remainingValue / limitValue) * 100
+        if let remaining, let remainingValue = Double(remaining) {
+            return (remainingValue / limitValue) * 100
+        }
+        guard let used, let usedValue = Double(used) else { return nil }
+        return ((limitValue - usedValue) / limitValue) * 100
     }
 
     private struct KimiUsageResponse: Decodable {
@@ -1145,6 +1153,7 @@ struct KimiAPIClient: ProviderAPIClient {
 
     private struct KimiUsageDetail: Decodable {
         let limit: String
+        let used: String?
         let remaining: String?
         let resetTime: String
     }
