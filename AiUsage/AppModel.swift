@@ -18,10 +18,14 @@ final class AppModel: ObservableObject {
     @Published var loadingProviders: Set<ProviderID> = []
     @Published var codexLoginState: CodexLoginState?
     @Published var geminiLoginState: GeminiLoginState?
+    @Published private(set) var geminiAccessIssue: GeminiCodeAssistAccessIssue?
+    @Published private(set) var geminiWebSnapshot: ProviderUsageSnapshot?
+    @Published private(set) var grokSignInState: GrokSignInState?
 
     private let credentialsStore = CredentialsStore()
     private let codexAuthService = CodexDeviceAuthService()
     private let geminiAuthService = GeminiDeviceAuthService()
+    private let grokAuthService = GrokDeviceAuthService()
     private let codexTokenRefresher = CodexTokenRefresher()
     private let geminiTokenRefresher = GeminiTokenRefresher()
     private let mockModeDefaultsKey = "aiusage.mock_mode_enabled"
@@ -30,6 +34,9 @@ final class AppModel: ObservableObject {
     private var geminiManualAuthSession: GeminiManualAuthSession?
     private var geminiLastRefreshAt: Date?
     private var geminiLastRefreshedAccessToken: String?
+    private var grokSignInTask: Task<Void, Never>?
+    private var isGrokSignInActive = false
+    private var refreshIDs: [ProviderID: UUID] = [:]
 
     private var clients: [ProviderID: any ProviderAPIClient] = {
         Dictionary(uniqueKeysWithValues: ProviderID.allCases.map { ($0, ProviderAPIClientFactory.client(for: $0)) })
@@ -93,12 +100,16 @@ final class AppModel: ObservableObject {
         do {
             if trimmed.isEmpty {
                 try credentialsStore.delete(for: provider)
+                invalidateRefresh(for: provider)
+                if provider == .gemini { geminiAccessIssue = nil }
                 snapshots.removeValue(forKey: provider)
                 errors[provider] = nil
                 savedTokens[provider] = ""
             } else {
                 let credentials = try parseCredentialsInput(for: provider, input: trimmed)
                 try credentialsStore.save(credentials, for: provider)
+                invalidateRefresh(for: provider)
+                if provider == .gemini { geminiAccessIssue = nil }
                 let displayToken = displayToken(for: provider, credentials: credentials)
                 tokenDrafts[provider] = displayToken
                 savedTokens[provider] = displayToken
@@ -113,6 +124,7 @@ final class AppModel: ObservableObject {
 
     /// Refreshes all authenticated providers in parallel.
     func refreshAll() async {
+        readGeminiWebSnapshot()
         if useMockData {
             applyMockSnapshots()
             persistWidgetSnapshot()
@@ -131,7 +143,7 @@ final class AppModel: ObservableObject {
             for provider in providersToRefresh {
                 group.addTask { [weak self] in
                     guard let self else { return }
-                    await self.refresh(provider)
+                    await self.refresh(provider, updateWidget: false)
                 }
             }
         }
@@ -140,7 +152,7 @@ final class AppModel: ObservableObject {
     }
 
     /// Refreshes one provider and updates loading/error state.
-    func refresh(_ provider: ProviderID) async {
+    func refresh(_ provider: ProviderID, updateWidget: Bool = true) async {
         if useMockData {
             applyMockSnapshots()
             persistWidgetSnapshot()
@@ -154,19 +166,89 @@ final class AppModel: ObservableObject {
             return
         }
 
+        guard refreshIDs[provider] == nil else { return }
+        let id = UUID()
+        refreshIDs[provider] = id
         loadingProviders.insert(provider)
-        defer { loadingProviders.remove(provider) }
+        defer {
+            if refreshIDs[provider] == id {
+                invalidateRefresh(for: provider)
+                if updateWidget { persistWidgetSnapshot() }
+            }
+        }
 
         do {
             let credentials = try await resolveCredentials(for: provider)
             let snapshot = try await fetchUsage(for: provider, credentials: credentials)
+            guard refreshIDs[provider] == id, !useMockData else { return }
             snapshots[provider] = snapshot
             errors[provider] = nil
+            if provider == .gemini { geminiAccessIssue = nil }
         } catch {
+            guard refreshIDs[provider] == id, !useMockData else { return }
             // Avoid showing stale usage when a refresh/fetch fails.
             snapshots.removeValue(forKey: provider)
-            errors[provider] = error.localizedDescription
+            if provider == .gemini, let issue = geminiIssue(from: error) {
+                geminiAccessIssue = issue
+                errors[provider] = issue.localizedDescription
+            } else {
+                if provider == .gemini { geminiAccessIssue = nil }
+                errors[provider] = error.localizedDescription
+            }
         }
+    }
+
+    private func geminiIssue(from error: Error) -> GeminiCodeAssistAccessIssue? {
+        if let issue = error as? GeminiCodeAssistAccessIssue { return issue }
+        if case GeminiTokenRefreshError.revoked = error { return .signInRequired }
+        return isUnauthorized(error) ? .signInRequired : nil
+    }
+
+    private func invalidateRefresh(for provider: ProviderID) {
+        refreshIDs[provider] = nil
+        loadingProviders.remove(provider)
+    }
+
+    func startGrokSignIn() {
+        guard grokSignInTask == nil else { return }
+        errors[.grok] = nil
+        grokSignInState = .starting
+        grokSignInTask = Task { [weak self] in
+            guard let self else { return }
+            do {
+                let authorization = try await grokAuthService.begin()
+                try Task.checkCancellation()
+                grokSignInState = .waiting(authorization)
+                let credentials = try await grokAuthService.finish(authorization) { self.isGrokSignInActive }
+                try Task.checkCancellation()
+                try credentialsStore.save(credentials, for: .grok)
+                invalidateRefresh(for: .grok)
+                grokSignInState = nil
+                grokSignInTask = nil
+                await refresh(.grok)
+            } catch {
+                guard !Task.isCancelled else { return }
+                errors[.grok] = error.localizedDescription
+                grokSignInState = nil
+                grokSignInTask = nil
+            }
+        }
+    }
+
+    func setGrokSignInActive(_ isActive: Bool) {
+        isGrokSignInActive = isActive
+    }
+
+    func cancelGrokSignIn() {
+        grokSignInTask?.cancel()
+        grokSignInTask = nil
+        grokSignInState = nil
+    }
+
+    func disconnectGrok() async {
+        cancelGrokSignIn()
+        tokenDrafts[.grok] = ""
+        await saveToken(for: .grok)
     }
 
     /// Starts manual Codex login by generating a PKCE authorization URL.
@@ -277,6 +359,7 @@ final class AppModel: ObservableObject {
 
     /// Starts manual Gemini login by generating a PKCE authorization URL.
     func prepareGeminiLoginLink() async {
+        tokenDrafts[.gemini] = ""
         geminiLoginState = GeminiLoginState(
             isWorking: true,
             message: "Generating browser auth URL..."
@@ -344,21 +427,19 @@ final class AppModel: ObservableObject {
                 redirectURI: session.redirectURI
             )
 
-            let existing = credentialsStore.load(for: .gemini)
-            let resolvedRefreshToken = normalizedToken(tokens.refreshToken ?? existing?.refreshToken)
+            let resolvedRefreshToken = normalizedToken(tokens.refreshToken)
             guard !resolvedRefreshToken.isEmpty else {
                 throw GeminiOAuthSignInError.missingRefreshToken
             }
             let merged = ProviderCredentials(
                 accessToken: tokens.accessToken,
-                refreshToken: resolvedRefreshToken,
-                accountID: existing?.accountID,
-                cookieHeader: existing?.cookieHeader,
-                geminiAuthorizationHeader: existing?.geminiAuthorizationHeader,
-                geminiAPIKey: existing?.geminiAPIKey
+                refreshToken: resolvedRefreshToken
             )
 
             try credentialsStore.save(merged, for: .gemini)
+            invalidateRefresh(for: .gemini)
+            snapshots.removeValue(forKey: .gemini)
+            geminiAccessIssue = nil
             tokenDrafts[.gemini] = merged.accessToken
             savedTokens[.gemini] = merged.accessToken
             geminiLastRefreshAt = Date()
@@ -393,6 +474,7 @@ final class AppModel: ObservableObject {
 
         do {
             try credentialsStore.delete(for: .codex)
+            invalidateRefresh(for: .codex)
             tokenDrafts[.codex] = ""
             savedTokens[.codex] = ""
             snapshots.removeValue(forKey: .codex)
@@ -412,6 +494,8 @@ final class AppModel: ObservableObject {
 
         do {
             try credentialsStore.delete(for: .gemini)
+            invalidateRefresh(for: .gemini)
+            geminiAccessIssue = nil
             tokenDrafts[.gemini] = ""
             savedTokens[.gemini] = ""
             snapshots.removeValue(forKey: .gemini)
@@ -424,6 +508,8 @@ final class AppModel: ObservableObject {
 
     /// Toggles mock mode and refreshes snapshots accordingly.
     func setMockDataEnabled(_ isEnabled: Bool) async {
+        refreshIDs.removeAll()
+        loadingProviders.removeAll()
         useMockData = isEnabled
         UserDefaults.standard.set(isEnabled, forKey: mockModeDefaultsKey)
 
@@ -440,8 +526,25 @@ final class AppModel: ObservableObject {
 
     /// Refreshes data when app returns to foreground.
     func refreshAllIfNeeded() async {
-        guard useMockData || hasAnyToken() else { return }
-        await refreshAll()
+        if useMockData || hasAnyToken() {
+            await refreshAll()
+        } else {
+            readGeminiWebSnapshot()
+        }
+    }
+
+    private func readGeminiWebSnapshot() {
+        let snapshot = GeminiWebUsageStore.load()?.snapshot
+        guard snapshot?.updatedAt != geminiWebSnapshot?.updatedAt else { return }
+        geminiWebSnapshot = snapshot
+        WidgetCenter.shared.reloadAllTimelines()
+    }
+
+    func dashboardSnapshot(for provider: ProviderID) -> ProviderUsageSnapshot? {
+        if provider == .gemini, !useMockData, let geminiWebSnapshot {
+            return geminiWebSnapshot
+        }
+        return snapshots[provider]
     }
 
     func hasToken(for provider: ProviderID) -> Bool {
@@ -496,17 +599,16 @@ final class AppModel: ObservableObject {
     }
 
     private func resolveCredentials(for provider: ProviderID) async throws -> ProviderCredentials {
+        if provider == .grok || provider == .gemini {
+            guard let credentials = credentialsStore.load(for: provider) else { throw ProviderFetchError.missingToken }
+            return credentials
+        }
         let draft = normalizedToken(tokenDrafts[provider])
 
         if !draft.isEmpty {
             let parsed = try parseCredentialsInput(for: provider, input: draft)
             if provider == .codex,
                let enriched = loadCodexCredentialsMatchingAccessToken(parsed.accessToken)
-            {
-                return enriched
-            }
-            if provider == .gemini,
-               let enriched = loadGeminiCredentialsMatchingAccessToken(parsed.accessToken)
             {
                 return enriched
             }
@@ -556,6 +658,12 @@ final class AppModel: ObservableObject {
             return try await refreshCodexCredentialsIfPossible(from: credentials)
         case .gemini:
             return try await refreshGeminiCredentialsIfPossible(from: credentials)
+        case .grok:
+            guard let refreshToken = credentials.refreshToken, !refreshToken.isEmpty else { return nil }
+            let refreshed = try await grokAuthService.refresh(using: refreshToken)
+            guard credentialsStore.load(for: .grok)?.refreshToken == refreshToken else { return nil }
+            try credentialsStore.save(refreshed, for: .grok)
+            return refreshed
         case .claude, .copilot, .kimi:
             return nil
         }
@@ -604,6 +712,7 @@ final class AppModel: ObservableObject {
         guard !refreshToken.isEmpty else { return nil }
 
         let refreshed = try await codexTokenRefresher.refresh(credentials)
+        guard credentialsStore.load(for: .codex)?.refreshToken == refreshToken else { return nil }
         let merged = ProviderCredentials(
             accessToken: refreshed.accessToken,
             refreshToken: refreshed.refreshToken,
@@ -625,6 +734,7 @@ final class AppModel: ObservableObject {
         guard !refreshToken.isEmpty else { return nil }
 
         let refreshed = try await geminiTokenRefresher.refresh(credentials)
+        guard credentialsStore.load(for: .gemini)?.refreshToken == refreshToken else { return nil }
         let merged = ProviderCredentials(
             accessToken: refreshed.accessToken,
             refreshToken: refreshed.refreshToken,
@@ -636,7 +746,9 @@ final class AppModel: ObservableObject {
 
         try credentialsStore.save(merged, for: .gemini)
         let displayToken = displayToken(for: .gemini, credentials: merged)
-        tokenDrafts[.gemini] = displayToken
+        if geminiManualAuthSession == nil, !isTokenModified(for: .gemini) {
+            tokenDrafts[.gemini] = displayToken
+        }
         savedTokens[.gemini] = displayToken
         geminiLastRefreshAt = Date()
         geminiLastRefreshedAccessToken = normalizedToken(merged.accessToken)
@@ -654,18 +766,6 @@ final class AppModel: ObservableObject {
         }
 
         return nil
-    }
-
-    private func loadGeminiCredentialsMatchingAccessToken(_ accessToken: String) -> ProviderCredentials? {
-        let normalizedAccessToken = normalizedToken(accessToken)
-        guard !normalizedAccessToken.isEmpty else { return nil }
-
-        guard let stored = credentialsStore.load(for: .gemini) else { return nil }
-        guard normalizedToken(stored.accessToken) == normalizedAccessToken else { return nil }
-
-        // Keep persisted refresh token and optional Studio headers when the draft
-        // only contains the visible access token value.
-        return stored
     }
 
     private func parseCredentialsInput(for provider: ProviderID, input: String) throws -> ProviderCredentials {
@@ -691,6 +791,8 @@ final class AppModel: ObservableObject {
             return ProviderCredentials(accessToken: try parseCopilotAccessToken(input))
         case .kimi:
             return try parseKimiCredentialsInput(input)
+        case .grok:
+            throw ProviderFetchError.notSupported(message: "Use Sign in with Grok to connect this account.")
         }
     }
 
@@ -1074,6 +1176,7 @@ final class AppModel: ObservableObject {
     }
 
     private func displayToken(for provider: ProviderID, credentials: ProviderCredentials) -> String {
+        if provider == .grok { return "" }
         let accessToken = normalizedToken(credentials.accessToken)
         if !accessToken.isEmpty {
             return accessToken

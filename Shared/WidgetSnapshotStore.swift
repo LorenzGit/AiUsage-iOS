@@ -1,7 +1,7 @@
 import Foundation
 
 public enum WidgetSnapshotStore {
-    public static let appGroupID = "group.aiusage.gamojo.com"
+    public static let appGroupID = GeminiWebUsageStore.appGroupID
     private static let fileName = "widget-snapshot.json"
     private static let refreshCredentialsFileName = "widget-refresh-credentials.json"
 

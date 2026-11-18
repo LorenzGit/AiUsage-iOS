@@ -29,6 +29,16 @@ extension MockSnapshotCycle {
                     weeklyRemainingPercent: 28,
                     sessionResetsAt: now.addingTimeInterval(90 * 60),
                     weeklyResetsAt: now.addingTimeInterval(1 * 24 * 60 * 60 + 18 * 60 * 60),
+                    fableUsedPercent: 36,
+                    fableResetsAt: now.addingTimeInterval(2 * 24 * 60 * 60 + 4 * 60 * 60 + 37 * 60),
+                    statusText: "Mock B",
+                    updatedAt: now
+                ),
+                ProviderUsageSnapshot(
+                    provider: .grok,
+                    usedPercent: nil,
+                    secondaryUsedPercent: 69,
+                    weeklyResetsAt: now.addingTimeInterval(45 * 60 * 60 + 26 * 60),
                     statusText: "Mock B",
                     updatedAt: now
                 ),

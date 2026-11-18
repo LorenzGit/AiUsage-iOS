@@ -14,6 +14,9 @@ public struct ProviderUsageSnapshot: Codable, Identifiable, Sendable {
     public let sessionRunsOutAt: Date?
     public let weeklyRunsOutAt: Date?
     public let tertiaryRunsOutAt: Date?
+    public let fableUsedPercent: Double?
+    public let fableResetsAt: Date?
+    public let isGeminiWebUsage: Bool?
     public let statusText: String
     public let updatedAt: Date
 
@@ -33,6 +36,9 @@ public struct ProviderUsageSnapshot: Codable, Identifiable, Sendable {
         sessionRunsOutAt: Date? = nil,
         weeklyRunsOutAt: Date? = nil,
         tertiaryRunsOutAt: Date? = nil,
+        fableUsedPercent: Double? = nil,
+        fableResetsAt: Date? = nil,
+        isGeminiWebUsage: Bool? = nil,
         statusText: String,
         updatedAt: Date
     ) {
@@ -49,6 +55,9 @@ public struct ProviderUsageSnapshot: Codable, Identifiable, Sendable {
         self.sessionRunsOutAt = sessionRunsOutAt
         self.weeklyRunsOutAt = weeklyRunsOutAt
         self.tertiaryRunsOutAt = tertiaryRunsOutAt
+        self.fableUsedPercent = fableUsedPercent
+        self.fableResetsAt = fableResetsAt
+        self.isGeminiWebUsage = isGeminiWebUsage
         self.statusText = statusText
         self.updatedAt = updatedAt
     }
@@ -69,6 +78,33 @@ public struct ProviderUsageSnapshot: Codable, Identifiable, Sendable {
         if let tertiaryRemainingPercent { return tertiaryRemainingPercent }
         guard let tertiaryUsedPercent else { return nil }
         return 100 - tertiaryUsedPercent
+    }
+
+    public var fableRemainingPercent: Double? {
+        fableUsedPercent.map { 100 - $0 }
+    }
+
+    var primaryQuotaTitle: String {
+        isGeminiWebUsage == true ? "5h" : provider.primaryBarTitle
+    }
+
+    var secondaryQuotaTitle: String {
+        isGeminiWebUsage == true ? "Weekly" : provider.secondaryBarTitle
+    }
+}
+
+extension GeminiWebUsage {
+    var snapshot: ProviderUsageSnapshot {
+        ProviderUsageSnapshot(
+            provider: .gemini,
+            usedPercent: session.usedPercent,
+            secondaryUsedPercent: weekly.usedPercent,
+            sessionResetsAt: session.resetsAt,
+            weeklyResetsAt: weekly.resetsAt,
+            isGeminiWebUsage: true,
+            statusText: "Gemini Apps",
+            updatedAt: importedAt
+        )
     }
 }
 
@@ -146,10 +182,60 @@ public extension ProviderUsageSnapshot {
     }
 }
 
-public enum RelativeDateText {
-    public static func abbreviated(from date: Date, relativeTo reference: Date = Date()) -> String {
-        let formatter = RelativeDateTimeFormatter()
-        formatter.unitsStyle = .abbreviated
-        return formatter.localizedString(for: date, relativeTo: reference)
+struct QuotaCountdownFormat: DiscreteFormatStyle {
+    private static let secondsPerHour: TimeInterval = 3600
+    private static let secondsPerDay = 24 * secondsPerHour
+
+    enum Event: String, Codable {
+        case reset
+        case runOut
+    }
+
+    let date: Date
+    var event: Event = .reset
+    var compact = false
+
+    func format(_ now: Date) -> String {
+        let seconds = date.timeIntervalSince(now)
+        guard seconds > 0 else {
+            return event == .reset ? "Reset due" : "Runs out now"
+        }
+        let remaining: String
+        if seconds > Self.secondsPerDay {
+            let hours = Int(seconds / Self.secondsPerHour)
+            remaining = "\(hours / 24)d \(hours % 24)h"
+        } else {
+            let minutes = minutesLeft(at: now)
+            remaining = minutes >= 60 ? "\(minutes / 60)h \(minutes % 60)m" : "\(minutes)m"
+        }
+        if compact { return remaining }
+        return event == .reset ? "Resets in \(remaining)" : "Runs out in \(remaining)"
+    }
+
+    func discreteInput(after input: Date) -> Date? {
+        let seconds = date.timeIntervalSince(input)
+        if seconds > Self.secondsPerDay {
+            let hours = Int(seconds / Self.secondsPerHour)
+            let boundary = date.addingTimeInterval(-Double(hours) * Self.secondsPerHour)
+            // Whole hours count down just after the boundary. At 24h the format changes at the boundary.
+            return hours == 24 ? boundary : Date(timeIntervalSinceReferenceDate: boundary.timeIntervalSinceReferenceDate.nextUp)
+        }
+        let minutes = minutesLeft(at: input)
+        guard minutes > 0 else { return nil }
+        return date.addingTimeInterval(-Double(minutes - 1) * 60)
+    }
+
+    func discreteInput(before input: Date) -> Date? {
+        let seconds = date.timeIntervalSince(input)
+        if seconds > Self.secondsPerDay {
+            let hours = Int(seconds / Self.secondsPerHour)
+            return date.addingTimeInterval(-Double(hours + 1) * Self.secondsPerHour)
+        }
+        let boundary = date.addingTimeInterval(-Double(minutesLeft(at: input)) * 60)
+        return Date(timeIntervalSinceReferenceDate: boundary.timeIntervalSinceReferenceDate.nextDown)
+    }
+
+    private func minutesLeft(at now: Date) -> Int {
+        Int(ceil(max(0, date.timeIntervalSince(now)) / 60))
     }
 }

@@ -1,8 +1,10 @@
 import SwiftUI
+import UIKit
 
 struct ContentView: View {
     @StateObject private var model = AppModel()
     @State private var showingSettings = false
+    @State private var showGeminiSyncError = false
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.colorScheme) private var colorScheme
 
@@ -14,7 +16,9 @@ struct ContentView: View {
         if model.useMockData {
             return model.providerOrder
         }
-        return model.providerOrder.filter { model.hasToken(for: $0) }
+        return model.providerOrder.filter { provider in
+            model.hasToken(for: provider) || (provider == .gemini && model.geminiWebSnapshot != nil)
+        }
     }
 
     var body: some View {
@@ -27,14 +31,19 @@ struct ContentView: View {
                         emptyState
                     } else {
                         ForEach(visibleProviders) { provider in
+                            let snapshot = model.dashboardSnapshot(for: provider)
                             ProviderDashboardCard(
                                 provider: provider,
-                                snapshot: model.snapshots[provider],
-                                error: model.errors[provider],
+                                snapshot: snapshot,
+                                error: snapshot?.isGeminiWebUsage == true ? nil : model.errors[provider],
                                 isLoading: model.loadingProviders.contains(provider),
                                 palette: palette,
                                 onRefresh: {
-                                    Task { await model.refresh(provider) }
+                                    if snapshot?.isGeminiWebUsage == true {
+                                        startGeminiSync()
+                                    } else {
+                                        Task { await model.refresh(provider) }
+                                    }
                                 }
                             )
                         }
@@ -52,11 +61,20 @@ struct ContentView: View {
                     } label: {
                         Image(systemName: "gearshape.fill")
                     }
+                    .accessibilityLabel("Settings")
                 }
             }
             .sheet(isPresented: $showingSettings) {
-                SettingsView(model: model)
+                SettingsView(model: model, startGeminiSync: startGeminiSync)
             }
+        }
+        .onOpenURL { url in
+            guard url == GeminiSyncRequest.appURL else { return }
+            showingSettings = false
+            startGeminiSync()
+        }
+        .alert("Couldn’t open Gemini Usage Limits", isPresented: $showGeminiSyncError) {
+            Button("OK", role: .cancel) {}
         }
         .task {
             await model.load()
@@ -64,9 +82,24 @@ struct ContentView: View {
         .task(id: model.useMockData) {
             await runPollingLoop()
         }
-        .onChange(of: scenePhase) { _, newPhase in
-            guard newPhase == .active else { return }
+        .onChange(of: scenePhase, initial: true) { oldPhase, newPhase in
+            model.setGrokSignInActive(newPhase == .active)
+            guard newPhase == .active, oldPhase != newPhase else { return }
             Task { await model.refreshAllIfNeeded() }
+        }
+    }
+
+    private func startGeminiSync() {
+        Task { @MainActor in
+            guard let page = ProviderID.gemini.usageDashboardURL,
+                  let url = try? GeminiSyncRequest.createURL(for: page),
+                  var safari = URLComponents(url: url, resolvingAgainstBaseURL: false) else {
+                showGeminiSyncError = true
+                return
+            }
+            safari.scheme = "x-safari-https"
+            if let safariURL = safari.url, await UIApplication.shared.open(safariURL) { return }
+            showGeminiSyncError = !(await UIApplication.shared.open(url))
         }
     }
 
@@ -232,7 +265,7 @@ private struct ProviderDashboardCard: View {
     private struct QuotaRowModel: Identifiable {
         let id: String
         let title: String
-        let remainingPercent: Double
+        let remainingPercent: Double?
         let resetAt: Date?
         let runsOutAt: Date?
         let deficitPercent: Double?
@@ -248,7 +281,7 @@ private struct ProviderDashboardCard: View {
             rows.append(
                 QuotaRowModel(
                     id: "session",
-                    title: provider.primaryBarTitle,
+                    title: snapshot.primaryQuotaTitle,
                     remainingPercent: session,
                     resetAt: snapshot.sessionResetsAt,
                     runsOutAt: snapshot.sessionRunsOutAt,
@@ -258,17 +291,32 @@ private struct ProviderDashboardCard: View {
             )
         }
 
-        if let weekly = snapshot.resolvedWeeklyRemainingPercent {
+        let weekly = snapshot.resolvedWeeklyRemainingPercent
+        if weekly != nil || snapshot.weeklyResetsAt != nil {
             let pace = snapshot.codexWeeklyPaceEstimate()
             rows.append(
                 QuotaRowModel(
                     id: "weekly",
-                    title: provider.secondaryBarTitle,
+                    title: snapshot.secondaryQuotaTitle,
                     remainingPercent: weekly,
                     resetAt: snapshot.weeklyResetsAt,
                     runsOutAt: snapshot.weeklyRunsOutAt ?? pace?.runsOutAt,
                     deficitPercent: pace?.deficitPercent,
                     deficitMarkerPercent: pace?.expectedRemainingPercent
+                )
+            )
+        }
+
+        if snapshot.fableRemainingPercent != nil || snapshot.fableResetsAt != nil {
+            rows.append(
+                QuotaRowModel(
+                    id: "fable",
+                    title: "Fable weekly",
+                    remainingPercent: snapshot.fableRemainingPercent,
+                    resetAt: snapshot.fableResetsAt,
+                    runsOutAt: nil,
+                    deficitPercent: nil,
+                    deficitMarkerPercent: nil
                 )
             )
         }
@@ -300,7 +348,7 @@ private struct ProviderDashboardCard: View {
                 Spacer()
                 Button(action: onRefresh) {
                     Group {
-                        if isLoading {
+                        if isLoading, snapshot?.isGeminiWebUsage != true {
                             ProgressView()
                                 .tint(palette.cardBodyText)
                         } else {
@@ -311,6 +359,7 @@ private struct ProviderDashboardCard: View {
                 }
                 .buttonStyle(.plain)
                 .foregroundStyle(palette.cardBodyText)
+                .accessibilityLabel(snapshot?.isGeminiWebUsage == true ? "Sync Gemini quota" : "Refresh \(provider.displayName)")
             }
 
             if let snapshot {
@@ -327,11 +376,17 @@ private struct ProviderDashboardCard: View {
                     )
                 }
 
-                Text(snapshot.statusText)
-                    .font(.caption)
-                    .foregroundStyle(palette.cardSecondaryText)
-            } else {
-                Text("No data yet. Configure this provider in Settings.")
+                Group {
+                    if snapshot.isGeminiWebUsage == true {
+                        Text("Synced \(Text(snapshot.updatedAt, style: .relative)) ago")
+                    } else {
+                        Text(snapshot.statusText)
+                    }
+                }
+                .font(.caption)
+                .foregroundStyle(palette.cardSecondaryText)
+            } else if error == nil {
+                Text(isLoading ? "Loading usage…" : "No usage data yet.")
                     .font(.subheadline)
                     .foregroundStyle(palette.cardSecondaryText)
             }
@@ -360,7 +415,7 @@ private struct ProviderDashboardCard: View {
 
 private struct QuotaSectionRow: View {
     let title: String
-    let remainingPercent: Double
+    let remainingPercent: Double?
     let resetAt: Date?
     let runsOutAt: Date?
     let barColors: [Color]
@@ -368,8 +423,8 @@ private struct QuotaSectionRow: View {
     let deficitMarkerPercent: Double?
     let palette: DashboardPalette
 
-    private var clampedRemaining: Double { min(max(remainingPercent, 0), 100) }
-    private var displayDeficitPercent: Double { max(0, deficitPercent ?? max(0, -remainingPercent)) }
+    private var clampedRemaining: Double { min(max(remainingPercent ?? 0, 0), 100) }
+    private var displayDeficitPercent: Double { max(0, deficitPercent ?? -(remainingPercent ?? 0)) }
     private var clampedDeficitMarkerPercent: Double? {
         guard let deficitMarkerPercent else { return nil }
         return min(max(deficitMarkerPercent, 0), 100)
@@ -388,34 +443,17 @@ private struct QuotaSectionRow: View {
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(palette.cardBodyText)
 
-            GeometryReader { proxy in
-                ZStack(alignment: .leading) {
-                    Capsule()
-                        .fill(palette.meterTrack)
-                    Capsule()
-                        .fill(
-                            LinearGradient(
-                                colors: barColors,
-                                startPoint: .leading,
-                                endPoint: .trailing
-                            )
-                        )
-                        .frame(width: proxy.size.width * (clampedRemaining / 100))
-                    if deficitMarkerIsVisible {
-                        RoundedRectangle(cornerRadius: 1, style: .continuous)
-                            .fill(Color.red.opacity(0.92))
-                            .frame(width: 2, height: 11)
-                            .offset(x: max(0, min(proxy.size.width - 2, (proxy.size.width * (deficitMarkerXPercent / 100)) - 1)))
-                    }
-                }
+            if remainingPercent != nil {
+                meter
             }
-            .frame(height: 11)
 
             HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: 1) {
-                    Text("\(Int(clampedRemaining.rounded()))% left")
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(palette.cardBodyText)
+                    if remainingPercent != nil {
+                        Text("\(Int(clampedRemaining.rounded()))% left")
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(palette.cardBodyText)
+                    }
                     if displayDeficitPercent > 0 {
                         Text("\(Int(displayDeficitPercent.rounded()))% in deficit")
                             .font(.caption2)
@@ -425,21 +463,48 @@ private struct QuotaSectionRow: View {
                 Spacer()
                 VStack(alignment: .trailing, spacing: 1) {
                     if let resetAt {
-                        Text("Resets \(RelativeDateText.abbreviated(from: resetAt))")
+                        Text(.currentDate, format: QuotaCountdownFormat(date: resetAt))
                     }
                     if let runsOutAt {
-                        Text("Runs out \(RelativeDateText.abbreviated(from: runsOutAt))")
+                        Text(.currentDate, format: QuotaCountdownFormat(date: runsOutAt, event: .runOut))
                     }
                 }
-                .font(.caption2)
+                .font(.caption2.monospacedDigit())
                 .foregroundStyle(palette.cardSecondaryText)
+                .multilineTextAlignment(.trailing)
             }
         }
+    }
+
+    private var meter: some View {
+        GeometryReader { proxy in
+            ZStack(alignment: .leading) {
+                Capsule()
+                    .fill(palette.meterTrack)
+                Capsule()
+                    .fill(
+                        LinearGradient(
+                            colors: barColors,
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
+                    )
+                    .frame(width: proxy.size.width * (clampedRemaining / 100))
+                if deficitMarkerIsVisible {
+                    RoundedRectangle(cornerRadius: 1, style: .continuous)
+                        .fill(Color.red.opacity(0.92))
+                        .frame(width: 2, height: 11)
+                        .offset(x: max(0, min(proxy.size.width - 2, (proxy.size.width * (deficitMarkerXPercent / 100)) - 1)))
+                }
+            }
+        }
+        .frame(height: 11)
     }
 }
 
 private struct SettingsView: View {
     @ObservedObject var model: AppModel
+    let startGeminiSync: () -> Void
     @Environment(\.dismiss) private var dismiss
     @Environment(\.openURL) private var openURL
 
@@ -499,7 +564,11 @@ private struct SettingsView: View {
                 .environment(\.editMode, .constant(.active))
 
                 ForEach(model.providerOrder) { provider in
-                    providerSection(provider)
+                    if provider == .gemini {
+                        geminiSection
+                    } else {
+                        providerSection(provider)
+                    }
                 }
             }
             .navigationTitle("Settings")
@@ -530,6 +599,7 @@ private struct SettingsView: View {
                 }
                 .buttonStyle(.bordered)
                 .disabled(!isAuthenticatedForUI)
+                .accessibilityLabel("Refresh \(provider.displayName)")
 
                 Spacer()
 
@@ -540,13 +610,14 @@ private struct SettingsView: View {
                         Image(systemName: "safari")
                     }
                     .buttonStyle(.bordered)
+                    .accessibilityLabel("Open \(provider.displayName) usage")
                 }
             }
 
-            if !isAuthenticatedForUI {
+            if provider != .grok && !isAuthenticatedForUI {
                 HStack(spacing: 8) {
                     tokenField(for: provider)
-                    if provider != .codex && provider != .gemini {
+                    if provider != .codex {
                         Button {
                             tokenVisible[provider] = !(tokenVisible[provider] ?? false)
                         } label: {
@@ -563,18 +634,16 @@ private struct SettingsView: View {
                 }
             }
 
-            if provider == .codex || provider == .gemini {
+            if provider == .grok {
+                grokSignInSection(isAuthenticated: isAuthenticatedForUI)
+            } else if provider == .codex {
                 Button(isAuthenticatedForUI ? "Disconnect" : "Sign in", role: isAuthenticatedForUI ? .destructive : nil) {
                     Task {
                         await performPrimaryAction(for: provider, isAuthenticated: isAuthenticatedForUI)
                     }
                 }
                 .buttonStyle(.borderedProminent)
-                .disabled(
-                    !isAuthenticatedForUI &&
-                    ((provider == .codex && model.codexLoginState?.isWorking == true) ||
-                    (provider == .gemini && model.geminiLoginState?.isWorking == true))
-                )
+                .disabled(!isAuthenticatedForUI && model.codexLoginState?.isWorking == true)
             } else if isAuthenticatedForUI {
                 Button("Disconnect", role: .destructive) {
                     Task {
@@ -590,7 +659,7 @@ private struct SettingsView: View {
                 .disabled(model.tokenDrafts[provider, default: ""].trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             }
 
-            if !isAuthenticatedForUI {
+            if provider != .grok && !isAuthenticatedForUI {
                 Text(signInInstructions(for: provider))
                     .font(.footnote)
                     .foregroundStyle(.secondary)
@@ -605,26 +674,8 @@ private struct SettingsView: View {
                     .foregroundStyle(.secondary)
             }
 
-            if provider == .gemini,
-               let status = model.geminiLoginState?.message,
-               !status.isEmpty
-            {
-                Text(status)
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
-            }
-
             if provider == .codex,
                let verificationURI = model.codexLoginState?.verificationURI,
-               let url = URL(string: verificationURI),
-               !isAuthenticatedForUI
-            {
-                Link("Open login link again", destination: url)
-                    .font(.footnote)
-            }
-
-            if provider == .gemini,
-               let verificationURI = model.geminiLoginState?.verificationURI,
                let url = URL(string: verificationURI),
                !isAuthenticatedForUI
             {
@@ -642,6 +693,133 @@ private struct SettingsView: View {
         }
     }
 
+    private var geminiSection: some View {
+        let hasSavedCredentials = model.hasToken(for: .gemini) && !model.debugShowDisconnectedProviderUI
+        let needsSignIn = model.geminiAccessIssue == .signInRequired
+        let hasPendingSignIn = model.hasPendingGeminiAuthURL()
+        let draft = model.tokenDrafts[.gemini, default: ""].trimmingCharacters(in: .whitespacesAndNewlines)
+        let signInTitle = hasPendingSignIn && !draft.isEmpty
+            ? "Connect Code Assist" : "Sign in to Code Assist"
+
+        return Section {
+            Button(action: startGeminiSync) {
+                Label("Sync Gemini Quota", systemImage: "arrow.clockwise")
+            }
+            if let snapshot = model.geminiWebSnapshot {
+                Text("Last synced \(Text(snapshot.updatedAt, style: .relative)) ago")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+            }
+            Text("The sync opens your signed-in quota page in Safari. Enable AI Usage Gemini Sync in Safari’s extension settings and allow it on gemini.google.com once.")
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+            Text("Add Gemini Usage from the widget gallery, or turn on Google Gemini in Provider Order for the medium and large widgets.")
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+
+            DisclosureGroup("Code Assist (legacy)") {
+                if hasSavedCredentials {
+                    geminiConnectionStatus
+                } else {
+                    Text("For eligible Code Assist accounts.")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
+
+                if !hasSavedCredentials || needsSignIn || hasPendingSignIn {
+                    Button(signInTitle) {
+                        Task { await performPrimaryAction(for: .gemini, isAuthenticated: false) }
+                    }
+                    .disabled(model.geminiLoginState?.isWorking == true)
+                    if !hasSavedCredentials || hasPendingSignIn {
+                        tokenField(for: .gemini)
+                    }
+                    if let state = model.geminiLoginState, hasPendingSignIn || state.isWorking {
+                        Text(state.message)
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                        if let verificationURI = state.verificationURI, let url = URL(string: verificationURI) {
+                            Link("Open sign-in page again", destination: url)
+                        }
+                    }
+                }
+
+                if hasSavedCredentials {
+                    if !needsSignIn && !hasPendingSignIn {
+                        Button("Refresh Code Assist") {
+                            Task { await model.refresh(.gemini) }
+                        }
+                        .disabled(model.loadingProviders.contains(.gemini))
+                    }
+                    Button("Disconnect Code Assist", role: .destructive) {
+                        Task { await model.disconnectGemini() }
+                    }
+                    .disabled(model.geminiLoginState?.isWorking == true)
+                }
+
+                if let error = model.errors[.gemini], !error.isEmpty {
+                    Text(error)
+                        .font(.footnote)
+                        .foregroundStyle(.red)
+                }
+            }
+        } header: {
+            providerHeader(.gemini)
+        }
+    }
+
+    @ViewBuilder
+    private var geminiConnectionStatus: some View {
+        if model.loadingProviders.contains(.gemini) {
+            ProgressView("Checking Code Assist access")
+        } else if let issue = model.geminiAccessIssue {
+            Label(issue == .signInRequired ? "Code Assist sign-in required" : "Code Assist access denied",
+                  systemImage: "exclamationmark.circle")
+                .foregroundStyle(.secondary)
+        } else if model.snapshots[.gemini] != nil {
+            Label("Code Assist connected", systemImage: "checkmark.circle")
+                .foregroundStyle(.secondary)
+        } else if model.errors[.gemini] != nil {
+            Label("Code Assist quota unavailable", systemImage: "exclamationmark.circle")
+                .foregroundStyle(.secondary)
+        } else {
+            Label("Code Assist credentials saved", systemImage: "key")
+                .foregroundStyle(.secondary)
+        }
+    }
+
+    @ViewBuilder
+    private func grokSignInSection(isAuthenticated: Bool) -> some View {
+        if isAuthenticated {
+            Button("Disconnect", role: .destructive) {
+                Task { await model.disconnectGrok() }
+            }
+            .buttonStyle(.borderedProminent)
+        } else {
+            switch model.grokSignInState {
+            case .starting:
+                ProgressView("Getting a sign-in code")
+                Button("Cancel Sign-in", role: .cancel, action: model.cancelGrokSignIn)
+            case let .waiting(authorization):
+                Text("Confirm code **\(authorization.userCode)** on xAI’s sign-in page, then return to AiUsage.")
+                    .font(.footnote)
+                    .textSelection(.enabled)
+                Link("Open Grok sign-in", destination: authorization.verificationURL)
+                    .buttonStyle(.borderedProminent)
+                ProgressView("Waiting for xAI approval")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+                Button("Cancel Sign-in", role: .cancel, action: model.cancelGrokSignIn)
+            case nil:
+                Button("Sign in with Grok", action: model.startGrokSignIn)
+                    .buttonStyle(.borderedProminent)
+                Text("Connect your Grok account to see its weekly subscription usage.")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+            }
+        }
+    }
+
     private func providerHeader(_ provider: ProviderID) -> some View {
         HStack(spacing: 6) {
             ProviderIconImage(provider: provider, size: 16, tint: .primary)
@@ -651,7 +829,7 @@ private struct SettingsView: View {
 
     private func shouldShowGetTokenButton(for provider: ProviderID) -> Bool {
         switch provider {
-        case .gemini, .copilot, .kimi:
+        case .gemini, .copilot, .kimi, .grok:
             return false
         case .codex, .claude:
             return true
@@ -771,11 +949,13 @@ private struct SettingsView: View {
         case .claude:
             return "Claude token (sk-ant-oat... or sessionKey=...)"
         case .gemini:
-            return "Paste callback url here..."
+            return "Paste callback URL or OAuth token"
         case .copilot:
             return "GitHub token (ghu_... / github_pat_...)"
         case .kimi:
             return "Kimi token or kimi-auth cookie"
+        case .grok:
+            return "Grok"
         }
     }
 
@@ -791,6 +971,8 @@ private struct SettingsView: View {
             return "Paste a GitHub token first, then press return."
         case .kimi:
             return "Paste your Kimi token or `kimi-auth` cookie first, then press return."
+        case .grok:
+            return "Tap Sign in with Grok to connect your account."
         }
     }
 
@@ -799,10 +981,7 @@ private struct SettingsView: View {
             return "- Tap Sign in.\n- Complete browser login.\n- Copy callback URL.\n- Paste callback URL above and press return."
         }
         if provider == .claude {
-            return "- Go to https://claude.ai/settings/usage on your computer.\n- Open Developer Console > Application > Cookies.\n- Look for http://claude.ai sessionKey.\n- Copy/Paste the sk-ant token here."
-        }
-        if provider == .gemini {
-            return "- Tap Sign in.\n- Complete browser login.\n- Copy callback URL.\n- Paste callback URL above and press return."
+            return "Paste your Claude Code OAuth access token, or sign in at claude.ai, copy the sessionKey cookie from your browser’s developer tools, and paste it here."
         }
         if provider == .copilot {
             return "- On your computer Terminal run: `gh auth token`.\n- Paste that token here.\n- (If you don't have gh, install it with `brew install gh` and run `gh auth login`.)"

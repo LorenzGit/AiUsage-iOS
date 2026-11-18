@@ -9,6 +9,7 @@ import UIKit
 public enum ProviderID: String, CaseIterable, Codable, Identifiable, Sendable {
     case codex
     case claude
+    case grok
     case gemini
     case copilot
     case kimi
@@ -19,6 +20,7 @@ public enum ProviderID: String, CaseIterable, Codable, Identifiable, Sendable {
         switch self {
         case .codex: return "OpenAI Codex"
         case .claude: return "Claude"
+        case .grok: return "Grok"
         case .gemini: return "Google Gemini"
         case .copilot: return "GitHub Copilot"
         case .kimi: return "Kimi"
@@ -31,6 +33,8 @@ public enum ProviderID: String, CaseIterable, Codable, Identifiable, Sendable {
             return "sparkles.rectangle.stack"
         case .claude:
             return "bubble.left.and.bubble.right"
+        case .grok:
+            return "circle.lefthalf.filled"
         case .gemini:
             return "diamond"
         case .copilot:
@@ -40,10 +44,11 @@ public enum ProviderID: String, CaseIterable, Codable, Identifiable, Sendable {
         }
     }
 
-    public var brandIconResourceName: String {
+    public var brandIconResourceName: String? {
         switch self {
         case .codex: return "ProviderIcon-codex"
         case .claude: return "ProviderIcon-claude"
+        case .grok: return nil
         case .gemini: return "ProviderIcon-gemini"
         case .copilot: return "ProviderIcon-copilot"
         case .kimi: return "ProviderIcon-kimi"
@@ -55,6 +60,8 @@ public enum ProviderID: String, CaseIterable, Codable, Identifiable, Sendable {
         case .codex:
             return nil
         case .claude:
+            return nil
+        case .grok:
             return nil
         case .gemini:
             return URL(string: "https://aistudio.google.com/app/apikey")
@@ -71,8 +78,10 @@ public enum ProviderID: String, CaseIterable, Codable, Identifiable, Sendable {
             return URL(string: "https://chatgpt.com/codex/settings/usage")
         case .claude:
             return URL(string: "https://claude.ai/settings/usage")
+        case .grok:
+            return URL(string: "https://grok.com/dashboard/usage")
         case .gemini:
-            return URL(string: "https://aistudio.google.com/")
+            return URL(string: "https://gemini.google.com/usage")
         case .copilot:
             return URL(string: "https://github.com/settings/copilot/features")
         case .kimi:
@@ -84,6 +93,7 @@ public enum ProviderID: String, CaseIterable, Codable, Identifiable, Sendable {
         switch self {
         case .codex: return "Session"
         case .claude: return "5h"
+        case .grok: return "Session"
         case .gemini: return "Pro"
         case .copilot: return "Premium"
         case .kimi: return "Session"
@@ -94,6 +104,7 @@ public enum ProviderID: String, CaseIterable, Codable, Identifiable, Sendable {
         switch self {
         case .codex: return "Weekly"
         case .claude: return "7d"
+        case .grok: return "Weekly"
         case .gemini: return "Flash"
         case .copilot: return "Chat"
         case .kimi: return "Weekly"
@@ -103,7 +114,7 @@ public enum ProviderID: String, CaseIterable, Codable, Identifiable, Sendable {
     public var tertiaryBarTitle: String {
         switch self {
         case .codex: return "Code Review"
-        case .claude, .gemini, .copilot, .kimi: return "Extra"
+        case .claude, .grok, .gemini, .copilot, .kimi: return "Extra"
         }
     }
 }
@@ -122,6 +133,8 @@ public extension ProviderID {
                 Color(red: 193.0 / 255.0, green: 128.0 / 255.0, blue: 100.0 / 255.0),
                 Color(red: 193.0 / 255.0, green: 128.0 / 255.0, blue: 100.0 / 255.0),
             ]
+        case .grok:
+            return [Color(red: 0.48, green: 0.57, blue: 0.65), Color(red: 0.62, green: 0.69, blue: 0.76)]
         case .gemini:
             return [
                 Color(red: 159.0 / 255.0, green: 124.0 / 255.0, blue: 226.0 / 255.0),
@@ -153,9 +166,8 @@ public struct ProviderIconImage: View {
     }
 
     public var body: some View {
-        #if canImport(UIKit)
-        if UIImage(named: provider.brandIconResourceName) != nil {
-            Image(provider.brandIconResourceName)
+        if let resourceName = provider.brandIconResourceName {
+            Image(resourceName)
                 .renderingMode(.template)
                 .resizable()
                 .scaledToFit()
@@ -166,14 +178,6 @@ public struct ProviderIconImage: View {
                 .foregroundStyle(tint)
                 .frame(width: size, height: size)
         }
-        #else
-        Image(provider.brandIconResourceName)
-            .renderingMode(.template)
-            .resizable()
-            .scaledToFit()
-            .foregroundStyle(tint)
-            .frame(width: size, height: size)
-        #endif
     }
 }
 #endif

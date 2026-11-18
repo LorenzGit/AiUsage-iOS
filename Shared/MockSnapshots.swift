@@ -45,6 +45,16 @@ public enum MockSnapshotCycle {
                     weeklyRemainingPercent: 41,
                     sessionResetsAt: now.addingTimeInterval(3 * 60 * 60),
                     weeklyResetsAt: now.addingTimeInterval(2 * 24 * 60 * 60 + 12 * 60 * 60),
+                    fableUsedPercent: 18,
+                    fableResetsAt: now.addingTimeInterval(2 * 24 * 60 * 60 + 3 * 60 * 60 + 37 * 60),
+                    statusText: "Mock A",
+                    updatedAt: now
+                ),
+                ProviderUsageSnapshot(
+                    provider: .grok,
+                    usedPercent: nil,
+                    secondaryUsedPercent: 56,
+                    weeklyResetsAt: now.addingTimeInterval(31 * 60 * 60 + 26 * 60),
                     statusText: "Mock A",
                     updatedAt: now
                 ),

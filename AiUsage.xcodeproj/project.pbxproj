@@ -22,6 +22,21 @@
 		2C0CD71D2F31265A00B8A1C2 /* MockSnapshotsSecondary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C0CD71B2F31265A00B8A1C2 /* MockSnapshotsSecondary.swift */; };
 		7A9E4D3C1B2A4F6E9D8C7B11 /* ProviderAssets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7A9E4D3C1B2A4F6E9D8C7B10 /* ProviderAssets.xcassets */; };
 		7A9E4D3C1B2A4F6E9D8C7B12 /* ProviderAssets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7A9E4D3C1B2A4F6E9D8C7B10 /* ProviderAssets.xcassets */; };
+		7A9E4D3C1B2A4F6E9D8C7B31 /* ProviderAPIClients.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A9E4D3C1B2A4F6E9D8C7B21 /* ProviderAPIClients.swift */; };
+		7A9E4D3C1B2A4F6E9D8C7B41 /* ProviderAPIClients.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A9E4D3C1B2A4F6E9D8C7B21 /* ProviderAPIClients.swift */; };
+		7A9E4D3C1B2A4F6E9D8C7B32 /* Credentials.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A9E4D3C1B2A4F6E9D8C7B22 /* Credentials.swift */; };
+		7A9E4D3C1B2A4F6E9D8C7B42 /* Credentials.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A9E4D3C1B2A4F6E9D8C7B22 /* Credentials.swift */; };
+		4B7D63B10DBA423480E5000D /* GeminiWebUsage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B7D63B10DBA423480E50001 /* GeminiWebUsage.swift */; };
+		4B7D63B10DBA423480E5000E /* GeminiWebUsage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B7D63B10DBA423480E50001 /* GeminiWebUsage.swift */; };
+		4B7D63B10DBA423480E5000F /* GeminiWebUsage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B7D63B10DBA423480E50001 /* GeminiWebUsage.swift */; };
+		4B7D63B10DBA423480E50010 /* SafariWebExtensionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B7D63B10DBA423480E50002 /* SafariWebExtensionHandler.swift */; };
+		4B7D63B10DBA423480E50011 /* GeminiUsage.js in Resources */ = {isa = PBXBuildFile; fileRef = 4B7D63B10DBA423480E50003 /* GeminiUsage.js */; };
+		4B7D63B10DBA423480E50007 /* GeminiSafariSync.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 4B7D63B10DBA423480E50004 /* GeminiSafariSync.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		4B7D63B10DBA423480E50023 /* Popup.js in Resources */ = {isa = PBXBuildFile; fileRef = 4B7D63B10DBA423480E50021 /* Popup.js */; };
+		4B7D63B10DBA423480E50024 /* manifest.json in Resources */ = {isa = PBXBuildFile; fileRef = 4B7D63B10DBA423480E50022 /* manifest.json */; };
+		4B7D63B10DBA423480E50026 /* Popup.html in Resources */ = {isa = PBXBuildFile; fileRef = 4B7D63B10DBA423480E50025 /* Popup.html */; };
+		4B7D63B10DBA423480E50028 /* Background.js in Resources */ = {isa = PBXBuildFile; fileRef = 4B7D63B10DBA423480E50027 /* Background.js */; };
+		4B7D63B10DBA423480E5002A /* RequestedSync.js in Resources */ = {isa = PBXBuildFile; fileRef = 4B7D63B10DBA423480E50029 /* RequestedSync.js */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -31,6 +46,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 2C0CD6DF2F31256C00B8A1C2;
 			remoteInfo = AiUsageWidgetExtension;
+		};
+		4B7D63B10DBA423480E50008 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2C0CD6C62F31229F00B8A1C2 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4B7D63B10DBA423480E50006;
+			remoteInfo = GeminiSafariSync;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -42,6 +64,7 @@
 			dstSubfolderSpec = 13;
 			files = (
 				2C0CD6F62F31256E00B8A1C2 /* AiUsageWidgetExtension.appex in Embed Foundation Extensions */,
+				4B7D63B10DBA423480E50007 /* GeminiSafariSync.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -59,6 +82,17 @@
 		2C0CD71A2F31265A00B8A1C2 /* MockSnapshots.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockSnapshots.swift; sourceTree = "<group>"; };
 		2C0CD71B2F31265A00B8A1C2 /* MockSnapshotsSecondary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockSnapshotsSecondary.swift; sourceTree = "<group>"; };
 		7A9E4D3C1B2A4F6E9D8C7B10 /* ProviderAssets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = ProviderAssets.xcassets; sourceTree = "<group>"; };
+		7A9E4D3C1B2A4F6E9D8C7B21 /* ProviderAPIClients.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProviderAPIClients.swift; sourceTree = "<group>"; };
+		7A9E4D3C1B2A4F6E9D8C7B22 /* Credentials.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Credentials.swift; sourceTree = "<group>"; };
+		4B7D63B10DBA423480E50001 /* GeminiWebUsage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeminiWebUsage.swift; sourceTree = "<group>"; };
+		4B7D63B10DBA423480E50002 /* SafariWebExtensionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafariWebExtensionHandler.swift; sourceTree = "<group>"; };
+		4B7D63B10DBA423480E50003 /* GeminiUsage.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = GeminiUsage.js; sourceTree = "<group>"; };
+		4B7D63B10DBA423480E50004 /* GeminiSafariSync.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = GeminiSafariSync.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		4B7D63B10DBA423480E50021 /* Popup.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = Popup.js; sourceTree = "<group>"; };
+		4B7D63B10DBA423480E50022 /* manifest.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = manifest.json; sourceTree = "<group>"; };
+		4B7D63B10DBA423480E50025 /* Popup.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = Popup.html; sourceTree = "<group>"; };
+		4B7D63B10DBA423480E50027 /* Background.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = Background.js; sourceTree = "<group>"; };
+		4B7D63B10DBA423480E50029 /* RequestedSync.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = RequestedSync.js; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -113,6 +147,7 @@
 				2C0CD6D02F31229F00B8A1C2 /* AiUsage */,
 				2C0CD6E62F31256C00B8A1C2 /* AiUsageWidget */,
 				2C0CD7112F31265A00B8A1C2 /* Shared */,
+				4B7D63B10DBA423480E50005 /* GeminiSafariSync */,
 				2C0CD6E12F31256C00B8A1C2 /* Frameworks */,
 				2C0CD6CF2F31229F00B8A1C2 /* Products */,
 			);
@@ -123,6 +158,7 @@
 			children = (
 				2C0CD6CE2F31229F00B8A1C2 /* AiUsage.app */,
 				2C0CD6E02F31256C00B8A1C2 /* AiUsageWidgetExtension.appex */,
+				4B7D63B10DBA423480E50004 /* GeminiSafariSync.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -141,12 +177,29 @@
 			children = (
 				2C0CD70E2F31265A00B8A1C2 /* ProviderID.swift */,
 				2C0CD70F2F31265A00B8A1C2 /* Snapshots.swift */,
+				4B7D63B10DBA423480E50001 /* GeminiWebUsage.swift */,
+				7A9E4D3C1B2A4F6E9D8C7B22 /* Credentials.swift */,
+				7A9E4D3C1B2A4F6E9D8C7B21 /* ProviderAPIClients.swift */,
 				2C0CD7102F31265A00B8A1C2 /* WidgetSnapshotStore.swift */,
 				2C0CD71A2F31265A00B8A1C2 /* MockSnapshots.swift */,
 				2C0CD71B2F31265A00B8A1C2 /* MockSnapshotsSecondary.swift */,
 				7A9E4D3C1B2A4F6E9D8C7B10 /* ProviderAssets.xcassets */,
 			);
 			path = Shared;
+			sourceTree = "<group>";
+		};
+		4B7D63B10DBA423480E50005 /* GeminiSafariSync */ = {
+			isa = PBXGroup;
+			children = (
+				4B7D63B10DBA423480E50002 /* SafariWebExtensionHandler.swift */,
+				4B7D63B10DBA423480E50003 /* GeminiUsage.js */,
+				4B7D63B10DBA423480E50022 /* manifest.json */,
+				4B7D63B10DBA423480E50021 /* Popup.js */,
+				4B7D63B10DBA423480E50025 /* Popup.html */,
+				4B7D63B10DBA423480E50029 /* RequestedSync.js */,
+				4B7D63B10DBA423480E50027 /* Background.js */,
+			);
+			path = GeminiSafariSync;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -165,6 +218,7 @@
 			);
 			dependencies = (
 				2C0CD6F52F31256E00B8A1C2 /* PBXTargetDependency */,
+				4B7D63B10DBA423480E50009 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				2C0CD6D02F31229F00B8A1C2 /* AiUsage */,
@@ -196,6 +250,20 @@
 			);
 			productName = AiUsageWidgetExtension;
 			productReference = 2C0CD6E02F31256C00B8A1C2 /* AiUsageWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		4B7D63B10DBA423480E50006 /* GeminiSafariSync */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4B7D63B10DBA423480E5000C /* Build configuration list for PBXNativeTarget "GeminiSafariSync" */;
+			buildPhases = (
+				4B7D63B10DBA423480E5000A /* Sources */,
+				4B7D63B10DBA423480E5000B /* Resources */,
+			);
+			buildRules = ();
+			dependencies = ();
+			name = GeminiSafariSync;
+			productName = GeminiSafariSync;
+			productReference = 4B7D63B10DBA423480E50004 /* GeminiSafariSync.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
@@ -232,6 +300,7 @@
 			targets = (
 				2C0CD6CD2F31229F00B8A1C2 /* AiUsage */,
 				2C0CD6DF2F31256C00B8A1C2 /* AiUsageWidgetExtension */,
+				4B7D63B10DBA423480E50006 /* GeminiSafariSync */,
 			);
 		};
 /* End PBXProject section */
@@ -253,6 +322,19 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		4B7D63B10DBA423480E5000B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4B7D63B10DBA423480E50011 /* GeminiUsage.js in Resources */,
+				4B7D63B10DBA423480E50024 /* manifest.json in Resources */,
+				4B7D63B10DBA423480E50023 /* Popup.js in Resources */,
+				4B7D63B10DBA423480E50026 /* Popup.html in Resources */,
+				4B7D63B10DBA423480E5002A /* RequestedSync.js in Resources */,
+				4B7D63B10DBA423480E50028 /* Background.js in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -263,6 +345,9 @@
 				2C0CD7152F31265A00B8A1C2 /* ProviderID.swift in Sources */,
 				2C0CD7162F31265A00B8A1C2 /* WidgetSnapshotStore.swift in Sources */,
 				2C0CD7172F31265A00B8A1C2 /* Snapshots.swift in Sources */,
+				4B7D63B10DBA423480E5000D /* GeminiWebUsage.swift in Sources */,
+				7A9E4D3C1B2A4F6E9D8C7B32 /* Credentials.swift in Sources */,
+				7A9E4D3C1B2A4F6E9D8C7B31 /* ProviderAPIClients.swift in Sources */,
 				2C0CD7182F31265A00B8A1C2 /* MockSnapshots.swift in Sources */,
 				2C0CD7192F31265A00B8A1C2 /* MockSnapshotsSecondary.swift in Sources */,
 			);
@@ -275,8 +360,20 @@
 				2C0CD7122F31265A00B8A1C2 /* ProviderID.swift in Sources */,
 				2C0CD7132F31265A00B8A1C2 /* WidgetSnapshotStore.swift in Sources */,
 				2C0CD7142F31265A00B8A1C2 /* Snapshots.swift in Sources */,
+				4B7D63B10DBA423480E5000E /* GeminiWebUsage.swift in Sources */,
+				7A9E4D3C1B2A4F6E9D8C7B42 /* Credentials.swift in Sources */,
+				7A9E4D3C1B2A4F6E9D8C7B41 /* ProviderAPIClients.swift in Sources */,
 				2C0CD71C2F31265A00B8A1C2 /* MockSnapshots.swift in Sources */,
 				2C0CD71D2F31265A00B8A1C2 /* MockSnapshotsSecondary.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4B7D63B10DBA423480E5000A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4B7D63B10DBA423480E50010 /* SafariWebExtensionHandler.swift in Sources */,
+				4B7D63B10DBA423480E5000F /* GeminiWebUsage.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -287,6 +384,11 @@
 			isa = PBXTargetDependency;
 			target = 2C0CD6DF2F31256C00B8A1C2 /* AiUsageWidgetExtension */;
 			targetProxy = 2C0CD6F42F31256E00B8A1C2 /* PBXContainerItemProxy */;
+		};
+		4B7D63B10DBA423480E50009 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4B7D63B10DBA423480E50006 /* GeminiSafariSync */;
+			targetProxy = 4B7D63B10DBA423480E50008 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -548,6 +650,54 @@
 			};
 			name = Release;
 		};
+		4B7D63B10DBA423480E50012 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_ENTITLEMENTS = Config/AiUsage.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 2X3CGM3BPT;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = "Config/GeminiSafariSync-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = aiusage.gamojo.com.GeminiSafariSync;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		4B7D63B10DBA423480E50013 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_ENTITLEMENTS = Config/AiUsage.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 2X3CGM3BPT;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = "Config/GeminiSafariSync-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = aiusage.gamojo.com.GeminiSafariSync;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -574,6 +724,15 @@
 			buildConfigurations = (
 				2C0CD6F92F31256E00B8A1C2 /* Debug */,
 				2C0CD6FA2F31256E00B8A1C2 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		4B7D63B10DBA423480E5000C /* Build configuration list for PBXNativeTarget "GeminiSafariSync" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4B7D63B10DBA423480E50012 /* Debug */,
+				4B7D63B10DBA423480E50013 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

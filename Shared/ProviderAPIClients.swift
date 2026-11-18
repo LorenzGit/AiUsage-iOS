@@ -39,6 +39,7 @@ enum ProviderAPIClientFactory {
         case .gemini: return GeminiAPIClient()
         case .copilot: return CopilotAPIClient()
         case .kimi: return KimiAPIClient()
+        case .grok: return GrokAPIClient()
         }
     }
 }
@@ -433,27 +434,8 @@ struct ClaudeAPIClient: ProviderAPIClient {
             throw ProviderFetchError.server(statusCode: http.statusCode)
         }
 
-        let decoded = try JSONDecoder().decode(ClaudeOAuthUsageResponse.self, from: data)
-        let primaryUsed = decoded.fiveHour?.utilization
-        let secondaryUsed = decoded.sevenDay?.utilization
-        let oauthExtraUtilization = decoded.extraUsage?.isEnabled == true ? decoded.extraUsage?.utilization : nil
-        let tertiaryUsed = oauthExtraUtilization
-            ?? decoded.sevenDaySonnet?.utilization
-            ?? decoded.sevenDayOpus?.utilization
-
-        return ProviderUsageSnapshot(
-            provider: .claude,
-            usedPercent: clamp(primaryUsed),
-            secondaryUsedPercent: clamp(secondaryUsed),
-            tertiaryUsedPercent: clamp(tertiaryUsed),
-            sessionRemainingPercent: remaining(fromUsed: primaryUsed),
-            weeklyRemainingPercent: remaining(fromUsed: secondaryUsed),
-            tertiaryRemainingPercent: remaining(fromUsed: tertiaryUsed),
-            sessionResetsAt: parseISO8601Date(decoded.fiveHour?.resetsAt),
-            weeklyResetsAt: parseISO8601Date(decoded.sevenDay?.resetsAt),
-            statusText: inferredClaudePlan(from: decoded.rateLimitTier) ?? "OAuth usage",
-            updatedAt: Date()
-        )
+        let usage = try decodeUsageResponse(data)
+        return makeSnapshot(from: usage, statusText: inferredClaudePlan(from: usage.rateLimitTier) ?? "OAuth usage")
     }
 
     private func fetchWebUsage(cookieHeader: String) async throws -> ProviderUsageSnapshot {
@@ -462,7 +444,20 @@ struct ClaudeAPIClient: ProviderAPIClient {
         let usage = try await fetchClaudeWebUsage(orgID: orgID, sessionKey: sessionKey)
         let extraUtilization = await fetchClaudeWebExtraUsageUtilization(orgID: orgID, sessionKey: sessionKey)
 
-        let tertiaryUsed = extraUtilization ?? usage.sevenDaySonnet?.utilization ?? usage.sevenDayOpus?.utilization
+        return makeSnapshot(from: usage, extraUtilization: extraUtilization, statusText: "Web usage")
+    }
+
+    private func makeSnapshot(
+        from usage: ClaudeUsageResponse,
+        extraUtilization: Double? = nil,
+        statusText: String
+    ) -> ProviderUsageSnapshot {
+        let extraUsed = extraUtilization
+            ?? (usage.extraUsage?.isEnabled == true ? usage.extraUsage?.utilization : nil)
+        let modelWindow = [usage.sevenDaySonnet, usage.sevenDayOpus].compactMap { $0 }
+            .first { $0.utilization != nil }
+        let tertiaryUsed = extraUsed ?? modelWindow?.utilization
+        let fable = usage.limits?.first { $0.isFable }
 
         return ProviderUsageSnapshot(
             provider: .claude,
@@ -474,7 +469,10 @@ struct ClaudeAPIClient: ProviderAPIClient {
             tertiaryRemainingPercent: remaining(fromUsed: tertiaryUsed),
             sessionResetsAt: parseISO8601Date(usage.fiveHour?.resetsAt),
             weeklyResetsAt: parseISO8601Date(usage.sevenDay?.resetsAt),
-            statusText: "Web usage",
+            tertiaryResetsAt: extraUsed == nil ? parseISO8601Date(modelWindow?.resetsAt) : nil,
+            fableUsedPercent: clamp(fable?.percent ?? usage.sevenDayFable?.utilization),
+            fableResetsAt: parseISO8601Date(fable?.resetsAt ?? usage.sevenDayFable?.resetsAt),
+            statusText: statusText,
             updatedAt: Date()
         )
     }
@@ -526,7 +524,7 @@ struct ClaudeAPIClient: ProviderAPIClient {
         throw ProviderFetchError.invalidResponse
     }
 
-    private func fetchClaudeWebUsage(orgID: String, sessionKey: String) async throws -> ClaudeWebUsageResponse {
+    private func fetchClaudeWebUsage(orgID: String, sessionKey: String) async throws -> ClaudeUsageResponse {
         guard let url = URL(string: "https://claude.ai/api/organizations/\(orgID)/usage") else {
             throw ProviderFetchError.invalidResponse
         }
@@ -545,11 +543,18 @@ struct ClaudeAPIClient: ProviderAPIClient {
             throw ProviderFetchError.server(statusCode: http.statusCode)
         }
 
-        let decoded = try JSONDecoder().decode(ClaudeWebUsageResponse.self, from: data)
-        guard decoded.fiveHour?.utilization != nil else {
+        return try decodeUsageResponse(data)
+    }
+
+    private func decodeUsageResponse(_ data: Data) throws -> ClaudeUsageResponse {
+        let usage = try JSONDecoder().decode(ClaudeUsageResponse.self, from: data)
+        if usage.error?.type == "rate_limit_error" {
+            throw ProviderFetchError.server(statusCode: 429)
+        }
+        guard usage.error == nil, usage.hasUsage else {
             throw ProviderFetchError.invalidResponse
         }
-        return decoded
+        return usage
     }
 
     private func fetchClaudeWebExtraUsageUtilization(orgID: String, sessionKey: String) async -> Double? {
@@ -645,21 +650,33 @@ struct ClaudeAPIClient: ProviderAPIClient {
         return nil
     }
 
-    private struct ClaudeOAuthUsageResponse: Decodable {
+    private struct ClaudeUsageResponse: Decodable {
         let fiveHour: Window?
         let sevenDay: Window?
         let sevenDayOpus: Window?
         let sevenDaySonnet: Window?
-        let extraUsage: ExtraUsage?
+        let sevenDayFable: Window?
+        let limits: [ScopedLimit]?
+        let extraUsage: ClaudeWebOverageResponse?
         let rateLimitTier: String?
+        let error: UsageError?
+
+        var hasUsage: Bool {
+            [fiveHour, sevenDay, sevenDayOpus, sevenDaySonnet, sevenDayFable].contains { $0 != nil }
+                || limits?.contains(where: { $0.isFable }) == true
+                || extraUsage?.isEnabled == true
+        }
 
         enum CodingKeys: String, CodingKey {
             case fiveHour = "five_hour"
             case sevenDay = "seven_day"
             case sevenDayOpus = "seven_day_opus"
             case sevenDaySonnet = "seven_day_sonnet"
+            case sevenDayFable = "seven_day_fable"
+            case limits
             case extraUsage = "extra_usage"
             case rateLimitTier = "rate_limit_tier"
+            case error
         }
 
         struct Window: Decodable {
@@ -672,37 +689,40 @@ struct ClaudeAPIClient: ProviderAPIClient {
             }
         }
 
-        struct ExtraUsage: Decodable {
-            let isEnabled: Bool?
-            let utilization: Double?
-
-            enum CodingKeys: String, CodingKey {
-                case isEnabled = "is_enabled"
-                case utilization
-            }
-        }
-    }
-
-    private struct ClaudeWebUsageResponse: Decodable {
-        let fiveHour: Window?
-        let sevenDay: Window?
-        let sevenDayOpus: Window?
-        let sevenDaySonnet: Window?
-
-        enum CodingKeys: String, CodingKey {
-            case fiveHour = "five_hour"
-            case sevenDay = "seven_day"
-            case sevenDayOpus = "seven_day_opus"
-            case sevenDaySonnet = "seven_day_sonnet"
+        struct UsageError: Decodable {
+            let type: String?
         }
 
-        struct Window: Decodable {
-            let utilization: Double?
+        struct ScopedLimit: Decodable {
+            let kind: String?
+            let percent: Double?
             let resetsAt: String?
+            let scope: Scope?
+
+            var isFable: Bool {
+                guard kind == "weekly_scoped", let model = scope?.model else { return false }
+                return [model.id, model.displayName].compactMap { $0 }.contains { name in
+                    name.lowercased().split { !$0.isLetter && !$0.isNumber }.contains("fable")
+                }
+            }
 
             enum CodingKeys: String, CodingKey {
-                case utilization
+                case kind, percent, scope
                 case resetsAt = "resets_at"
+            }
+
+            struct Scope: Decodable {
+                let model: Model?
+
+                struct Model: Decodable {
+                    let id: String?
+                    let displayName: String?
+
+                    enum CodingKeys: String, CodingKey {
+                        case id
+                        case displayName = "display_name"
+                    }
+                }
             }
         }
     }
@@ -714,6 +734,59 @@ struct ClaudeAPIClient: ProviderAPIClient {
         enum CodingKeys: String, CodingKey {
             case isEnabled = "is_enabled"
             case utilization
+        }
+    }
+}
+
+struct GrokAPIClient: ProviderAPIClient {
+    func fetchUsage(using credentials: ProviderCredentials) async throws -> ProviderUsageSnapshot {
+        guard !credentials.accessToken.isEmpty else { throw ProviderFetchError.missingToken }
+        let url = URL(string: "https://cli-chat-proxy.grok.com/v1/billing?format=credits")!
+        var request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: 15)
+        request.setValue("Bearer \(credentials.accessToken)", forHTTPHeaderField: "Authorization")
+        request.setValue("xai-grok-cli", forHTTPHeaderField: "X-XAI-Token-Auth")
+        request.setValue("application/json", forHTTPHeaderField: "Accept")
+        request.setValue("AiUsage", forHTTPHeaderField: "User-Agent")
+
+        let (data, response) = try await URLSession.shared.data(for: request)
+        let http = try requireHTTP(response)
+        if http.statusCode == 401 || http.statusCode == 403 {
+            throw ProviderFetchError.unauthorized
+        }
+        guard (200...299).contains(http.statusCode) else {
+            throw ProviderFetchError.server(statusCode: http.statusCode)
+        }
+
+        let config = try JSONDecoder().decode(BillingResponse.self, from: data).config
+        let reset = parseISO8601Date(config.currentPeriod?.end) ?? parseISO8601Date(config.billingPeriodEnd)
+        let used = clamp(config.creditUsagePercent)
+        let isWeekly = config.currentPeriod?.type == nil || config.currentPeriod?.type == "USAGE_PERIOD_TYPE_WEEKLY"
+        guard isWeekly, used != nil || reset != nil else {
+            throw ProviderFetchError.notSupported(message: "Grok did not report a weekly limit for this account.")
+        }
+
+        return ProviderUsageSnapshot(
+            provider: .grok,
+            usedPercent: nil,
+            secondaryUsedPercent: used,
+            weeklyResetsAt: reset,
+            statusText: used == nil ? "Grok reported the reset time only." : "Shared Grok subscription allowance",
+            updatedAt: Date()
+        )
+    }
+
+    private struct BillingResponse: Decodable {
+        let config: Config
+
+        struct Config: Decodable {
+            let creditUsagePercent: Double?
+            let currentPeriod: Period?
+            let billingPeriodEnd: String?
+        }
+
+        struct Period: Decodable {
+            let type: String?
+            let end: String?
         }
     }
 }
@@ -809,7 +882,27 @@ struct CopilotAPIClient: ProviderAPIClient {
     }
 }
 
+enum GeminiCodeAssistAccessIssue: LocalizedError {
+    case signInRequired
+    case accessDenied
+
+    var errorDescription: String? {
+        switch self {
+        case .signInRequired:
+            return "Sign in again with an eligible Code Assist account."
+        case .accessDenied:
+            return "Google denied Code Assist quota access. For Gemini chat, open Gemini Usage Limits above."
+        }
+    }
+}
+
 struct GeminiAPIClient: ProviderAPIClient {
+    private let session: URLSession
+
+    init(session: URLSession = .shared) {
+        self.session = session
+    }
+
     private struct GeminiBucketUsage {
         let usedPercent: Double
         let resetAt: Date?
@@ -860,40 +953,30 @@ struct GeminiAPIClient: ProviderAPIClient {
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = quotaRequestBody
 
-        let (data, response) = try await URLSession.shared.data(for: request)
-        let http = try requireHTTP(response)
-
-        if http.statusCode == 401 || http.statusCode == 403 {
-            throw ProviderFetchError.unauthorized
-        }
-        guard (200...299).contains(http.statusCode) else {
-            throw ProviderFetchError.server(statusCode: http.statusCode)
-        }
-
+        let data = try await requestCodeAssist(request)
         let decoded = try JSONDecoder().decode(GeminiQuotaResponse.self, from: data)
         let buckets = decoded.buckets ?? []
 
-        guard !buckets.isEmpty else {
+        guard let fallbackUsage = maxUsedUsage(in: buckets, contains: nil) else {
             throw ProviderFetchError.notSupported(
-                message: "Gemini returned no quota buckets. This endpoint is still experimental."
+                message: "Google did not report Code Assist quotas for this account."
             )
         }
 
         let proUsage = maxUsedUsage(in: buckets, contains: "pro")
         let flashUsage = maxUsedUsage(in: buckets, contains: "flash")
-        let fallbackUsage = maxUsedUsage(in: buckets, contains: nil)
         let resolvedPrimaryUsage = proUsage ?? fallbackUsage
         let resolvedSecondaryUsage = flashUsage ?? fallbackUsage
 
         return ProviderUsageSnapshot(
             provider: .gemini,
-            usedPercent: clamp(resolvedPrimaryUsage?.usedPercent),
-            secondaryUsedPercent: clamp(resolvedSecondaryUsage?.usedPercent),
-            sessionRemainingPercent: remaining(fromUsed: resolvedPrimaryUsage?.usedPercent),
-            weeklyRemainingPercent: remaining(fromUsed: resolvedSecondaryUsage?.usedPercent),
-            sessionResetsAt: resolvedPrimaryUsage?.resetAt,
-            weeklyResetsAt: resolvedSecondaryUsage?.resetAt,
-            statusText: "Experimental API",
+            usedPercent: clamp(resolvedPrimaryUsage.usedPercent),
+            secondaryUsedPercent: clamp(resolvedSecondaryUsage.usedPercent),
+            sessionRemainingPercent: remaining(fromUsed: resolvedPrimaryUsage.usedPercent),
+            weeklyRemainingPercent: remaining(fromUsed: resolvedSecondaryUsage.usedPercent),
+            sessionResetsAt: resolvedPrimaryUsage.resetAt,
+            weeklyResetsAt: resolvedSecondaryUsage.resetAt,
+            statusText: "Code Assist quota",
             updatedAt: Date()
         )
     }
@@ -932,16 +1015,7 @@ struct GeminiAPIClient: ProviderAPIClient {
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = body
 
-        let (data, response) = try await URLSession.shared.data(for: request)
-        let http = try requireHTTP(response)
-
-        if http.statusCode == 401 || http.statusCode == 403 {
-            throw ProviderFetchError.unauthorized
-        }
-        guard (200...299).contains(http.statusCode) else {
-            throw ProviderFetchError.server(statusCode: http.statusCode)
-        }
-
+        let data = try await requestCodeAssist(request)
         guard
             let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
         else {
@@ -962,6 +1036,21 @@ struct GeminiAPIClient: ProviderAPIClient {
         }
 
         return nil
+    }
+
+    private func requestCodeAssist(_ request: URLRequest) async throws -> Data {
+        let (data, response) = try await session.data(for: request)
+        let http = try requireHTTP(response)
+        switch http.statusCode {
+        case 200...299:
+            return data
+        case 401:
+            throw ProviderFetchError.unauthorized
+        case 403:
+            throw GeminiCodeAssistAccessIssue.accessDenied
+        default:
+            throw ProviderFetchError.server(statusCode: http.statusCode)
+        }
     }
 
     private func applyGeminiAuthHeaders(
@@ -1191,7 +1280,7 @@ enum GeminiTokenRefreshError: LocalizedError {
         case .missingRefreshToken:
             return "Missing Gemini refresh token."
         case .revoked:
-            return "Gemini refresh token was revoked. Run your OAuth script again."
+            return "Your Code Assist sign-in has expired."
         case let .invalidResponse(message):
             return "Invalid Gemini token refresh response: \(message)"
         case let .networkError(error):

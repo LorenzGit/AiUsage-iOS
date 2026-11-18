@@ -1,0 +1,37 @@
+{
+    "manifest_version": 3,
+    "name": "AI Usage Gemini Sync",
+    "version": "1.2",
+    "description": "Save the quota shown on Gemini Usage Limits to AI Usage and its widgets.",
+    "permissions": [
+        "nativeMessaging",
+        "scripting"
+    ],
+    "host_permissions": [
+        "https://gemini.google.com/*"
+    ],
+    "action": {
+        "default_title": "AI Usage Gemini Sync",
+        "default_popup": "Popup.html"
+    },
+    "background": {
+        "service_worker": "Background.js"
+    },
+    "content_scripts": [
+        {
+            "matches": [
+                "https://gemini.google.com/usage*",
+                "https://gemini.google.com/u/*/usage*"
+            ],
+            "include_globs": [
+                "*?*aiusage_sync=*",
+                "*#aiusage-sync=*"
+            ],
+            "js": [
+                "GeminiUsage.js",
+                "RequestedSync.js"
+            ],
+            "run_at": "document_idle"
+        }
+    ]
+}
